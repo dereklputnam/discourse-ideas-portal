@@ -175,10 +175,10 @@ export default apiInitializer("0.11.1", (api) => {
     if (typeof Chart === 'undefined') {
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-      script.onload = () => createBarChart(canvas, labels, data, backgroundColors, total, categoryInfo);
+      script.onload = () => createBarChart(canvas, labels, data, backgroundColors, total, categoryInfo, statusCounts);
       document.head.appendChild(script);
     } else {
-      createBarChart(canvas, labels, data, backgroundColors, total, categoryInfo);
+      createBarChart(canvas, labels, data, backgroundColors, total, categoryInfo, statusCounts);
     }
   };
   
@@ -262,8 +262,38 @@ export default apiInitializer("0.11.1", (api) => {
     window.ideasStatusChart.update();
   };
 
-  const createBarChart = (canvas, labels, data, backgroundColors, total, categoryInfo = null) => {
-    const chartTitle = `${total} ${total === 1 ? 'Idea' : 'Ideas'}`;
+  const createBarChart = (canvas, labels, data, backgroundColors, total, categoryInfo = null, statusCounts = null) => {
+    // Detect if we're on a filtered page and calculate the appropriate title
+    let chartTitle;
+    let filterTag = null;
+
+    const currentPath = window.location.pathname;
+    const isFiltered = currentPath.includes('/tags/c/') && currentPath.split('/').length > 6 ||
+                       currentPath.includes('/tags/intersection/');
+
+    if (isFiltered && statusCounts) {
+      // Try to extract the status tag from the URL
+      const categoryTagMatch = currentPath.match(/\/tags\/c\/[^\/]+\/[^\/]+\/\d+\/([^\/]+)/);
+      const intersectionMatch = currentPath.match(/\/tags\/intersection\/[^\/]+\/([^\/]+)/);
+
+      if (categoryTagMatch && categoryTagMatch[1]) {
+        filterTag = categoryTagMatch[1];
+      } else if (intersectionMatch && intersectionMatch[1]) {
+        filterTag = intersectionMatch[1];
+      }
+
+      // If we found a filter tag and it exists in our statusCounts, use filtered title
+      if (filterTag && statusCounts[filterTag] !== undefined) {
+        const count = statusCounts[filterTag];
+        const statusName = tagMap[filterTag];
+        chartTitle = `${count} ${statusName} ${count === 1 ? 'Idea' : 'Ideas'}`;
+      } else {
+        chartTitle = `${total} ${total === 1 ? 'Idea' : 'Ideas'}`;
+      }
+    } else {
+      chartTitle = `${total} ${total === 1 ? 'Idea' : 'Ideas'}`;
+    }
+
     // Using scriptable options for dynamic theme colors; no returnPrimaryColor helper needed
 
     const ctx = canvas.getContext('2d');
@@ -285,10 +315,7 @@ export default apiInitializer("0.11.1", (api) => {
     actionArea.className = 'ideas-chart-action-area';
     actionArea.id = 'ideas-chart-action-area';
 
-    // Check if we're on a filtered page
-    const currentPath = window.location.pathname;
-    const isFiltered = currentPath.includes('/tags/c/') && currentPath.split('/').length > 6 ||
-                       currentPath.includes('/tags/intersection/');
+    // Check if we're on a filtered page (reusing variables from title calculation above)
 
     if (isFiltered && categoryInfo) {
       const showAllButton = document.createElement('a');
