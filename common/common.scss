@@ -7,6 +7,8 @@
   display: block !important; /* Force display with !important */
   opacity: 1 !important; /* Ensure it's visible */
   visibility: visible !important; /* Ensure it's visible */
+  border: 1px solid var(--primary);
+  border-radius: 0px;
 }
 
 .ideas-portal-category .ideas-visualization-header {
@@ -118,14 +120,14 @@
 
 .ideas-portal-category .ideas-tag-filters .tag-filter {
   display: inline-block;
-  padding: 3px 8px;
-  border-radius: 16px;
-  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+  font-size: 0.65rem;
   font-weight: bold;
   text-transform: uppercase;
   color: white;
   text-decoration: none;
-  margin: 2px 3px;
+  margin: 2px 2px;
 }
 
 .ideas-portal-category .ideas-tag-filters .tag-filter-reset {
@@ -183,7 +185,7 @@ body:not(.tag-ideas) .ideas-portal-category .category-breadcrumb li:last-child {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 4px 6px;
+  gap: 3px 4px;
   background: var(--secondary);
   margin: auto auto 0 auto;
   max-width: 100%;
