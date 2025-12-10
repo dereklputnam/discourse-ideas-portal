@@ -9,37 +9,26 @@
   visibility: visible !important; /* Ensure it's visible */
 }
 
-/* Chart header bar - contains Show All button and click indicator */
-.ideas-portal-category .ideas-chart-header-bar {
+/* Chart title container - contains title and action area */
+.ideas-portal-category .ideas-chart-title-container {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+/* Main chart title */
+.ideas-portal-category .ideas-chart-main-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 6px;
+}
+
+/* Action area - contains either click indicator or show all button */
+.ideas-portal-category .ideas-chart-action-area {
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-start;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding: 0;
-  flex-wrap: wrap;
-}
-
-/* Show All button styling */
-.ideas-portal-category .ideas-show-all-button {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 14px;
-  background-color: var(--tertiary);
-  color: white;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  white-space: nowrap;
-}
-
-.ideas-portal-category .ideas-show-all-button:hover {
-  background-color: var(--tertiary-hover);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-  transform: translateY(-1px);
+  min-height: 24px;
 }
 
 /* Click indicator text */
@@ -48,6 +37,28 @@
   font-size: 0.85rem;
   font-style: italic;
   font-weight: 500;
+}
+
+/* Small Show All button styling */
+.ideas-portal-category .ideas-show-all-button-small {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  background-color: var(--tertiary);
+  color: white;
+  border-radius: 3px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.ideas-portal-category .ideas-show-all-button-small:hover {
+  background-color: var(--tertiary-hover);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
 }
 
 /* Make chart canvas cursor pointer to indicate it's clickable */

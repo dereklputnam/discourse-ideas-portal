@@ -118,39 +118,6 @@ export default apiInitializer("0.11.1", (api) => {
       container.style.display = 'block';
     }
   
-    // Create a header bar that contains both the title and the Show All button
-    const headerBar = document.createElement('div');
-    headerBar.className = 'ideas-chart-header-bar';
-
-    // Add a "Show All" button that appears when filtered
-    const currentPath = window.location.pathname;
-    const isFiltered = currentPath.includes('/tags/c/') && currentPath.split('/').length > 6 ||
-                       currentPath.includes('/tags/intersection/');
-
-    if (isFiltered && categoryInfo) {
-      const showAllButton = document.createElement('a');
-      showAllButton.className = 'ideas-show-all-button';
-      showAllButton.textContent = '← Show All';
-
-      // Build the "show all" URL
-      if (categoryInfo.isCategory) {
-        const { parentSlug, categorySlug, categoryId } = categoryInfo;
-        showAllButton.href = `/c/${parentSlug}${categorySlug}/${categoryId}`;
-      } else if (categoryInfo.isTag) {
-        showAllButton.href = `/tag/${categoryInfo.currentTag}`;
-      }
-
-      headerBar.appendChild(showAllButton);
-    }
-
-    // Add clickable indicator text
-    const clickIndicator = document.createElement('span');
-    clickIndicator.className = 'ideas-click-indicator';
-    clickIndicator.textContent = '(Click bars to filter)';
-    headerBar.appendChild(clickIndicator);
-
-    container.appendChild(headerBar);
-
     const header = document.createElement('div');
     header.className = 'ideas-visualization-header';
     const chartContainer = document.createElement('div');
@@ -214,14 +181,40 @@ export default apiInitializer("0.11.1", (api) => {
   };
   
 
-  const updateChartTitle = (statusCounts, filterTag = null) => {
+  const updateChartTitle = (statusCounts, filterTag = null, categoryInfo = null) => {
     if (!window.ideasStatusChart) return;
 
     let count, title;
+    const titleElement = document.getElementById('ideas-chart-main-title');
+    const actionArea = document.getElementById('ideas-chart-action-area');
+
     if (filterTag && statusCounts[filterTag] !== undefined) {
       count = statusCounts[filterTag];
       const statusName = tagMap[filterTag];
       title = `${count} ${statusName} ${count === 1 ? 'Idea' : 'Ideas'}`;
+
+      // Update the title element
+      if (titleElement) {
+        titleElement.textContent = title;
+      }
+
+      // Update action area to show "Show All" button
+      if (actionArea && categoryInfo) {
+        actionArea.innerHTML = '';
+        const showAllButton = document.createElement('a');
+        showAllButton.className = 'ideas-show-all-button-small';
+        showAllButton.textContent = '← Show All';
+
+        // Build the "show all" URL
+        if (categoryInfo.isCategory) {
+          const { parentSlug, categorySlug, categoryId } = categoryInfo;
+          showAllButton.href = `/c/${parentSlug}${categorySlug}/${categoryId}`;
+        } else if (categoryInfo.isTag) {
+          showAllButton.href = `/tag/${categoryInfo.currentTag}`;
+        }
+
+        actionArea.appendChild(showAllButton);
+      }
 
       // Dim other bars by reducing their opacity
       const chart = window.ideasStatusChart;
@@ -241,6 +234,20 @@ export default apiInitializer("0.11.1", (api) => {
       count = Object.values(statusCounts).reduce((sum, c) => sum + c, 0);
       title = `${count} ${count === 1 ? 'Idea' : 'Ideas'}`;
 
+      // Update the title element
+      if (titleElement) {
+        titleElement.textContent = title;
+      }
+
+      // Update action area to show click indicator
+      if (actionArea) {
+        actionArea.innerHTML = '';
+        const clickIndicator = document.createElement('span');
+        clickIndicator.className = 'ideas-click-indicator';
+        clickIndicator.textContent = '(Click bars to filter)';
+        actionArea.appendChild(clickIndicator);
+      }
+
       // Reset all bars to full opacity
       const chart = window.ideasStatusChart;
       chart.data.datasets[0].backgroundColor = chart.data.datasets[0].backgroundColor.map((color) => {
@@ -248,7 +255,6 @@ export default apiInitializer("0.11.1", (api) => {
       });
     }
 
-    window.ideasStatusChart.options.plugins.title.text = title;
     window.ideasStatusChart.update();
   };
 
@@ -258,6 +264,53 @@ export default apiInitializer("0.11.1", (api) => {
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
+
+    // Create title and action bar area above the chart
+    const titleContainer = document.createElement('div');
+    titleContainer.className = 'ideas-chart-title-container';
+    titleContainer.id = 'ideas-chart-title-container';
+
+    const chartTitleElement = document.createElement('div');
+    chartTitleElement.className = 'ideas-chart-main-title';
+    chartTitleElement.id = 'ideas-chart-main-title';
+    chartTitleElement.textContent = chartTitle;
+    titleContainer.appendChild(chartTitleElement);
+
+    // Add action area (either click indicator or show all button)
+    const actionArea = document.createElement('div');
+    actionArea.className = 'ideas-chart-action-area';
+    actionArea.id = 'ideas-chart-action-area';
+
+    // Check if we're on a filtered page
+    const currentPath = window.location.pathname;
+    const isFiltered = currentPath.includes('/tags/c/') && currentPath.split('/').length > 6 ||
+                       currentPath.includes('/tags/intersection/');
+
+    if (isFiltered && categoryInfo) {
+      const showAllButton = document.createElement('a');
+      showAllButton.className = 'ideas-show-all-button-small';
+      showAllButton.textContent = '← Show All';
+
+      // Build the "show all" URL
+      if (categoryInfo.isCategory) {
+        const { parentSlug, categorySlug, categoryId } = categoryInfo;
+        showAllButton.href = `/c/${parentSlug}${categorySlug}/${categoryId}`;
+      } else if (categoryInfo.isTag) {
+        showAllButton.href = `/tag/${categoryInfo.currentTag}`;
+      }
+
+      actionArea.appendChild(showAllButton);
+    } else {
+      const clickIndicator = document.createElement('span');
+      clickIndicator.className = 'ideas-click-indicator';
+      clickIndicator.textContent = '(Click bars to filter)';
+      actionArea.appendChild(clickIndicator);
+    }
+
+    titleContainer.appendChild(actionArea);
+
+    // Insert before the canvas
+    canvas.parentElement.insertBefore(titleContainer, canvas);
 
     window.ideasStatusChart = new Chart(ctx, {
       type: 'bar',
@@ -300,17 +353,7 @@ export default apiInitializer("0.11.1", (api) => {
             display: false
           },
         title: {
-            display: true,
-            text: chartTitle,
-            font: {
-              size: 20,
-              weight: 'bold'
-            },
-            // Scriptable color to adapt to theme
-            color: (ctx) => getComputedStyle(ctx.chart.canvas).getPropertyValue("--primary").trim(),
-            padding: {
-              bottom: 10
-            }
+            display: false
           },
           tooltip: {
             backgroundColor: 'rgba(0,0,0,0.8)',
@@ -551,7 +594,7 @@ export default apiInitializer("0.11.1", (api) => {
         if (tagMatch && tagMatch[1]) {
           const activeTag = tagMatch[1];
           if (statusCounts[activeTag] !== undefined) {
-            updateChartTitle(statusCounts, activeTag);
+            updateChartTitle(statusCounts, activeTag, categoryInfo);
           }
         }
       } catch (e) {
@@ -579,7 +622,7 @@ export default apiInitializer("0.11.1", (api) => {
           if (tagIntersectionMatch && tagIntersectionMatch[1]) {
             const activeTag = tagIntersectionMatch[1];
             if (statusCounts[activeTag] !== undefined) {
-              updateChartTitle(statusCounts, activeTag);
+              updateChartTitle(statusCounts, activeTag, categoryInfo);
             }
           }
         } catch (e) {
