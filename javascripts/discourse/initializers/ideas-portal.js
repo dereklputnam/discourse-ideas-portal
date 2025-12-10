@@ -121,7 +121,7 @@ export default apiInitializer("0.11.1", (api) => {
     const header = document.createElement('div');
     header.className = 'ideas-visualization-header';
     const chartContainer = document.createElement('div');
-    chartContainer.style.height = '250px';
+    chartContainer.style.height = '200px';
     chartContainer.style.width = '100%';
     chartContainer.style.position = 'relative';
     container.appendChild(chartContainer);
