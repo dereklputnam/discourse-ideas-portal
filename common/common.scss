@@ -168,3 +168,124 @@ body:not(.tag-ideas) .ideas-portal-category .category-breadcrumb li:last-child {
 .ideas-hide-category-badges .category-status .badge-category__wrapper:nth-child(3) {
   display: inline-flex !important;
 }
+
+/* Vote count display styling */
+.link-top-line .ideas-vote-count-before-title {
+  display: none;
+}
+
+body.ideas-voting-category .list-container {
+  .topic-list-item {
+    .link-bottom-line + .topic-excerpt {
+      margin-left: 65px;
+      font-size: var(--font-down-2);
+
+      .topic-excerpt-more {
+        font-weight: bold;
+      }
+    }
+
+    td.main-link {
+      display: flex;
+      flex-direction: column;
+      min-height: 52px;
+    }
+
+    .link-top-line {
+      display: flex;
+    }
+
+    .title.raw-link.raw-topic-link {
+      display: block;
+      padding: 0;
+      margin-left: 65px;
+    }
+
+    .discourse-tags {
+      margin-left: 65px;
+
+      .discourse-tag {
+        margin: 0.35em 0.5em 0 0;
+
+        &::after {
+          display: none;
+        }
+      }
+
+      .list-vote-count {
+        display: none;
+      }
+    }
+
+    .ideas-vote-count-before-title {
+      display: flex;
+      justify-content: center;
+      flex-direction: column;
+      color: var(--primary-high);
+      padding: 10px 0;
+      border: 1px solid var(--primary-low);
+      border-radius: 5px;
+      text-align: center;
+      height: 30px;
+      width: 45px;
+      position: absolute;
+      background: var(--secondary);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--primary-very-low);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .svg-icon {
+        font-size: var(--font-up-6);
+        color: var(--primary-low);
+        display: flex;
+        align-self: center;
+        height: 40px;
+        margin: -10px;
+        pointer-events: none;
+      }
+
+      .ideas-topic-list-vote-button {
+        display: flex;
+        justify-content: center;
+        cursor: pointer;
+        padding: 0;
+        margin: 0;
+        background: transparent;
+        border: none;
+
+        &.disabled {
+          cursor: default;
+          opacity: 0.5;
+        }
+
+        &.can-vote .svg-icon {
+          color: var(--tertiary);
+        }
+
+        &:not(.disabled):hover .svg-icon {
+          color: var(--tertiary-hover);
+          transform: scale(1.1);
+          transition: transform 0.15s ease;
+        }
+      }
+
+      .ideas-vote-count-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-top: -5px;
+      }
+    }
+
+    .topic-statuses {
+      margin-left: 65px;
+
+      & + .title.raw-link.raw-topic-link {
+        margin: 0;
+      }
+    }
+  }
+}
