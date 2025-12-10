@@ -355,7 +355,7 @@ export default apiInitializer("0.11.1", (api) => {
           backgroundColor: backgroundColors,
           borderColor: backgroundColors.map(c => c.replace('0.7', '1')),
           borderWidth: 1,
-          borderRadius: 6,
+          borderRadius: 0,
           borderSkipped: false,
         }]
       },
