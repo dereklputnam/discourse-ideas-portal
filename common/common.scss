@@ -9,25 +9,45 @@
   visibility: visible !important; /* Ensure it's visible */
 }
 
+/* Chart header bar - contains Show All button and click indicator */
+.ideas-portal-category .ideas-chart-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
 /* Show All button styling */
 .ideas-portal-category .ideas-show-all-button {
-  display: inline-block;
-  padding: 8px 16px;
-  margin-bottom: 15px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
   background-color: var(--tertiary);
   color: white;
   border-radius: 4px;
   text-decoration: none;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
 }
 
 .ideas-portal-category .ideas-show-all-button:hover {
   background-color: var(--tertiary-hover);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
+}
+
+/* Click indicator text */
+.ideas-portal-category .ideas-click-indicator {
+  color: var(--primary-medium);
+  font-size: 0.85rem;
+  font-style: italic;
+  font-weight: 500;
 }
 
 /* Make chart canvas cursor pointer to indicate it's clickable */

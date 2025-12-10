@@ -118,6 +118,10 @@ export default apiInitializer("0.11.1", (api) => {
       container.style.display = 'block';
     }
   
+    // Create a header bar that contains both the title and the Show All button
+    const headerBar = document.createElement('div');
+    headerBar.className = 'ideas-chart-header-bar';
+
     // Add a "Show All" button that appears when filtered
     const currentPath = window.location.pathname;
     const isFiltered = currentPath.includes('/tags/c/') && currentPath.split('/').length > 6 ||
@@ -126,7 +130,7 @@ export default apiInitializer("0.11.1", (api) => {
     if (isFiltered && categoryInfo) {
       const showAllButton = document.createElement('a');
       showAllButton.className = 'ideas-show-all-button';
-      showAllButton.textContent = '← Show All Ideas';
+      showAllButton.textContent = '← Show All';
 
       // Build the "show all" URL
       if (categoryInfo.isCategory) {
@@ -136,8 +140,16 @@ export default apiInitializer("0.11.1", (api) => {
         showAllButton.href = `/tag/${categoryInfo.currentTag}`;
       }
 
-      container.appendChild(showAllButton);
+      headerBar.appendChild(showAllButton);
     }
+
+    // Add clickable indicator text
+    const clickIndicator = document.createElement('span');
+    clickIndicator.className = 'ideas-click-indicator';
+    clickIndicator.textContent = '(Click bars to filter)';
+    headerBar.appendChild(clickIndicator);
+
+    container.appendChild(headerBar);
 
     const header = document.createElement('div');
     header.className = 'ideas-visualization-header';
@@ -504,17 +516,10 @@ export default apiInitializer("0.11.1", (api) => {
     // Render filters and chart
     const container = document.createElement('div');
     container.className = 'ideas-tag-filters';
-    const title = document.createElement('h3');
-    title.className = 'ideas-filter-title';
-    container.appendChild(title);
 
     const statusVisualization = document.createElement('div');
     statusVisualization.className = 'ideas-status-visualization';
     container.appendChild(statusVisualization);
-
-    // Create the div to wrap all filter buttons
-    const filtersWrapper = document.createElement('div');
-    filtersWrapper.className = 'filter-buttons';
 
     if (currentCategory) {
       // Category-specific code
@@ -525,22 +530,6 @@ export default apiInitializer("0.11.1", (api) => {
         const parentCategory = siteCategories.find(cat => cat.id === currentCategory.parent_category_id);
         if (parentCategory) parentSlug = `${parentCategory.slug}/`;
       }
-
-      const resetFilter = document.createElement('a');
-      resetFilter.href = `/c/${parentSlug}${categorySlug}/${currentCategory.id}`;
-      resetFilter.className = 'tag-filter tag-filter-reset';
-      resetFilter.textContent = 'Show All';
-      container.appendChild(resetFilter);
-      filtersWrapper.appendChild(resetFilter);
-
-      Object.keys(tagMap).forEach(tag => {
-        const filter = document.createElement('a');
-        filter.href = `/tags/c/${parentSlug}${categorySlug}/${currentCategory.id}/${tag}`;
-        filter.className = 'tag-filter';
-        filter.setAttribute('data-tag-name', tag);
-        filter.textContent = tagMap[tag];
-        filtersWrapper.appendChild(filter);
-      });
 
       // Try to fetch topics and create visualization
       try {
@@ -572,22 +561,6 @@ export default apiInitializer("0.11.1", (api) => {
       // Tag page specific code
       const currentTag = getCurrentTag(api);
       if (currentTag) {
-        const resetFilter = document.createElement('a');
-        resetFilter.href = `/tag/${currentTag}`;
-        resetFilter.className = 'tag-filter tag-filter-reset';
-        resetFilter.textContent = 'Show All';
-        container.appendChild(resetFilter);
-        filtersWrapper.appendChild(resetFilter);
-
-        Object.keys(tagMap).forEach(tag => {
-          const filter = document.createElement('a');
-          filter.href = `/tags/intersection/${currentTag}/${tag}`;
-          filter.className = 'tag-filter';
-          filter.setAttribute('data-tag-name', tag);
-          filter.textContent = tagMap[tag];
-          filtersWrapper.appendChild(filter);
-        });
-        
         // Fetch and display visualization for tag page
         try {
           const topics = await fetchAllTopicsForTag(currentTag);
