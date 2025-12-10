@@ -57,11 +57,11 @@
   transform: scale(1.1);
 }
 
-/* Tooltip styling for help button */
+/* Tooltip styling for help button - positioned below to stay in container */
 .ideas-portal-category .ideas-help-button::after {
   content: attr(data-tooltip);
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   background-color: rgba(0, 0, 0, 0.9);
@@ -81,15 +81,15 @@
   opacity: 1;
 }
 
-/* Tooltip arrow */
+/* Tooltip arrow - pointing up */
 .ideas-portal-category .ideas-help-button::before {
   content: '';
   position: absolute;
-  bottom: calc(100% + 2px);
+  top: calc(100% + 2px);
   left: 50%;
   transform: translateX(-50%);
   border: 6px solid transparent;
-  border-top-color: rgba(0, 0, 0, 0.9);
+  border-bottom-color: rgba(0, 0, 0, 0.9);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
