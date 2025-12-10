@@ -247,7 +247,7 @@ export default apiInitializer("0.11.1", (api) => {
         const helpButton = document.createElement('button');
         helpButton.className = 'ideas-help-button';
         helpButton.textContent = '?';
-        helpButton.title = 'Click a status to filter on it';
+        helpButton.setAttribute('data-tooltip', 'Click a status to filter on it');
         helpButton.type = 'button';
         actionArea.appendChild(helpButton);
       }
@@ -308,7 +308,7 @@ export default apiInitializer("0.11.1", (api) => {
       const helpButton = document.createElement('button');
       helpButton.className = 'ideas-help-button';
       helpButton.textContent = '?';
-      helpButton.title = 'Click a status to filter on it';
+      helpButton.setAttribute('data-tooltip', 'Click a status to filter on it');
       helpButton.type = 'button';
       actionArea.appendChild(helpButton);
     }

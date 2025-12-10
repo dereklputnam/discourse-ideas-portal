@@ -57,6 +57,49 @@
   transform: scale(1.1);
 }
 
+/* Tooltip styling for help button */
+.ideas-portal-category .ideas-help-button::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: normal;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+}
+
+.ideas-portal-category .ideas-help-button:hover::after {
+  opacity: 1;
+}
+
+/* Tooltip arrow */
+.ideas-portal-category .ideas-help-button::before {
+  content: '';
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 1000;
+}
+
+.ideas-portal-category .ideas-help-button:hover::before {
+  opacity: 1;
+}
+
 /* Small Show All button styling - matching Discourse primary button treatment */
 .ideas-portal-category .ideas-show-all-button-small {
   display: inline-flex;
