@@ -1,9 +1,9 @@
 /* Status visualization styling */
 .ideas-portal-category .ideas-status-visualization {
   width: 100%;
-  margin: 0 0 5px;
-  padding: 15px 15px 10px 15px;
-  background: var(--secondary);
+  margin: 0;
+  padding: 15px;
+  background: transparent;
   display: block !important; /* Force display with !important */
   opacity: 1 !important; /* Ensure it's visible */
   visibility: visible !important; /* Ensure it's visible */
@@ -89,7 +89,7 @@
 /* Tag filter styling */
 .ideas-portal-category .ideas-tag-filters {
   margin: 16px 0;
-  padding: 0;
+  padding: 15px;
   border: 1px solid var(--primary);
   background: var(--secondary);
   border-radius: 0px;

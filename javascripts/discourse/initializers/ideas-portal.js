@@ -203,7 +203,7 @@ export default apiInitializer("0.11.1", (api) => {
         actionArea.innerHTML = '';
         const showAllButton = document.createElement('a');
         showAllButton.className = 'ideas-show-all-button-small';
-        showAllButton.textContent = '← Show All';
+        showAllButton.textContent = '✕ Show All';
 
         // Build the "show all" URL
         if (categoryInfo.isCategory) {
@@ -289,7 +289,7 @@ export default apiInitializer("0.11.1", (api) => {
     if (isFiltered && categoryInfo) {
       const showAllButton = document.createElement('a');
       showAllButton.className = 'ideas-show-all-button-small';
-      showAllButton.textContent = '← Show All';
+      showAllButton.textContent = '✕ Show All';
 
       // Build the "show all" URL
       if (categoryInfo.isCategory) {
