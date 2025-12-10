@@ -19,7 +19,7 @@ export default apiInitializer("0.11.1", (api) => {
     'new': 'New',
     'under-review': 'Under Review',
     'planned': 'Planned',
-    'planned-longterm': 'Planned Long-term',
+    'planned-long-term': 'Planned Long-term',
     'in-progress': 'In Progress',
     'completed': 'Completed',
     'not-planned': 'Not Planned',
@@ -154,7 +154,7 @@ export default apiInitializer("0.11.1", (api) => {
       switch(status) {
         case 'new': color = 'rgba(0, 123, 255, 1)'; break;
         case 'planned': color = 'rgba(23, 162, 184, 1)'; break;
-        case 'planned-longterm': color = 'rgba(111, 66, 193, 1)'; break;
+        case 'planned-long-term': color = 'rgba(111, 66, 193, 1)'; break;
         case 'in-progress': color = 'rgba(253, 126, 20, 1)'; break;
         case 'already-exists': color = 'rgba(108, 117, 125, 1)'; break;
         case 'under-review': color = 'rgba(32, 201, 151, 1)'; break;
@@ -345,7 +345,7 @@ export default apiInitializer("0.11.1", (api) => {
           "new",
           "under-review",
           "planned",
-          "planned-longterm",
+          "planned-long-term",
           "in-progress",
           "completed",
           "not-planned",
@@ -358,7 +358,7 @@ export default apiInitializer("0.11.1", (api) => {
             if (!tagRow) return;
         
             const statusTags = [
-              "new", "under-review", "planned", "planned-longterm",
+              "new", "under-review", "planned", "planned-long-term",
               "in-progress", "completed", "not-planned", "already-exists"
             ];
         
