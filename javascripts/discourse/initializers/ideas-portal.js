@@ -588,10 +588,8 @@ export default apiInitializer("0.11.1", (api) => {
   }
   if (darkMediaQuery.addEventListener) {
     darkMediaQuery.addEventListener('change', handlePrefersChange);
-    api.cleanupStream(() => darkMediaQuery.removeEventListener('change', handlePrefersChange));
   } else if (darkMediaQuery.addListener) {
     darkMediaQuery.addListener(handlePrefersChange);
-    api.cleanupStream(() => darkMediaQuery.removeListener(handlePrefersChange));
   }
   
   // Observe theme stylesheet changes and <link> toggles (e.g., theme toggle) to refresh chart
@@ -609,7 +607,7 @@ export default apiInitializer("0.11.1", (api) => {
     }
   });
   headObserver.observe(document.head, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
-  api.cleanupStream(() => headObserver.disconnect());
+
   // Observe all attribute changes on <html> to detect Discourse theme toggles
   const htmlObserver = new MutationObserver(mutations => {
     mutations.forEach(m => {
@@ -621,8 +619,7 @@ export default apiInitializer("0.11.1", (api) => {
     });
   });
   htmlObserver.observe(document.documentElement, { attributes: true, attributeOldValue: true });
-  api.cleanupStream(() => htmlObserver.disconnect());
-  
+
   // Observe class changes on <body> as well
   const bodyObserver = new MutationObserver(mutations => {
     mutations.forEach(m => {
@@ -632,8 +629,7 @@ export default apiInitializer("0.11.1", (api) => {
     });
   });
   bodyObserver.observe(document.body, { attributes: true, attributeFilter: ['class'], attributeOldValue: true });
-  api.cleanupStream(() => bodyObserver.disconnect());
-  
+
   // Fallback: periodically update chart to catch theme changes not detected by observers
   // Reduced interval to 1 second for faster response
   const chartUpdateInterval = setInterval(() => {
@@ -641,18 +637,4 @@ export default apiInitializer("0.11.1", (api) => {
       window.ideasStatusChart.update();
     }
   }, 1000);
-  api.cleanupStream(() => clearInterval(chartUpdateInterval));
-  api.cleanupStream(() => {
-    if (window.ideasPortalObserver) {
-      window.ideasPortalObserver.disconnect();
-      window.ideasPortalObserver = null;
-    }
-    if (window.ideasStatusChart) {
-      window.ideasStatusChart.destroy();
-      window.ideasStatusChart = null;
-    }
-    document.body.classList.remove("ideas-portal-category");
-    const existingFilters = document.querySelector('.ideas-tag-filters');
-    if (existingFilters) existingFilters.remove();
-  });
 });

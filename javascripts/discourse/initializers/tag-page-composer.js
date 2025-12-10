@@ -51,10 +51,4 @@ export default apiInitializer("0.8", (api) => {
       }, 500); // Small delay to ensure the DOM is ready
     }
   });
-  
-  // Clean up when navigating away
-  api.cleanupStream(() => {
-    document.body.classList.remove("ideas-hide-category-badges");
-    document.body.classList.remove("ideas-filter-category-dropdown");
-  });
 });

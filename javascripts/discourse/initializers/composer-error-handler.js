@@ -83,12 +83,6 @@ export default apiInitializer("0.9", (api) => {
   // Add the error handlers
   window.addEventListener("error", errorHandler, true);
   window.addEventListener("unhandledrejection", rejectionHandler, true);
-  
-  // Clean up when navigating away
-  api.cleanupStream(() => {
-    window.removeEventListener("error", errorHandler, true);
-    window.removeEventListener("unhandledrejection", rejectionHandler, true);
-  });
-  
+
   console.log("Window error tracking initialized. Type 'window.viewWindowErrorLog()' in console to see window error details.");
 });
