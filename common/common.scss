@@ -9,10 +9,13 @@
   visibility: visible !important; /* Ensure it's visible */
 }
 
-/* Chart title container - contains title and action area */
+/* Chart title container - contains title and action area side by side */
 .ideas-portal-category .ideas-chart-title-container {
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 15px;
+  gap: 15px;
 }
 
 /* Main chart title */
@@ -20,15 +23,15 @@
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--primary);
-  margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
 /* Action area - contains either click indicator or show all button */
 .ideas-portal-category .ideas-chart-action-area {
   display: flex;
-  justify-content: center;
+  justify-content: flex-end;
   align-items: center;
-  min-height: 24px;
+  flex-shrink: 0;
 }
 
 /* Click indicator text */
