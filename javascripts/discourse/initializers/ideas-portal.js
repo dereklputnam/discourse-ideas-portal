@@ -188,10 +188,31 @@ export default apiInitializer("0.11.1", (api) => {
     if (filterTag && statusCounts[filterTag] !== undefined) {
       count = statusCounts[filterTag];
       const statusName = tagMap[filterTag];
-      title = `${count} ${count === 1 ? 'idea' : 'ideas'} - ${statusName}`;
+      title = `${count} ${count === 1 ? 'Idea' : 'Ideas'} - ${statusName}`;
+
+      // Dim other bars by reducing their opacity
+      const chart = window.ideasStatusChart;
+      const allStatuses = Object.keys(tagMap);
+      const filterIndex = allStatuses.indexOf(filterTag);
+
+      // Update opacity for each bar
+      chart.data.datasets[0].backgroundColor = chart.data.datasets[0].backgroundColor.map((color, index) => {
+        if (index === filterIndex) {
+          return color; // Keep active bar at full opacity
+        } else {
+          // Dim other bars by adding transparency
+          return color.replace('1)', '0.3)');
+        }
+      });
     } else {
       count = Object.values(statusCounts).reduce((sum, c) => sum + c, 0);
-      title = `${count} ${count === 1 ? 'idea' : 'ideas'}`;
+      title = `${count} ${count === 1 ? 'Idea' : 'Ideas'}`;
+
+      // Reset all bars to full opacity
+      const chart = window.ideasStatusChart;
+      chart.data.datasets[0].backgroundColor = chart.data.datasets[0].backgroundColor.map((color) => {
+        return color.replace(/[\d.]+\)$/, '1)');
+      });
     }
 
     window.ideasStatusChart.options.plugins.title.text = title;
@@ -199,7 +220,7 @@ export default apiInitializer("0.11.1", (api) => {
   };
 
   const createBarChart = (canvas, labels, data, backgroundColors, total) => {
-    const chartTitle = `${total} ${total === 1 ? 'idea' : 'ideas'}`;
+    const chartTitle = `${total} ${total === 1 ? 'Idea' : 'Ideas'}`;
     // Using scriptable options for dynamic theme colors; no returnPrimaryColor helper needed
 
     const ctx = canvas.getContext('2d');
