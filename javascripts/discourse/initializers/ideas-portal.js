@@ -94,9 +94,9 @@ export default apiInitializer("0.11.1", (api) => {
     return counts;
   };
 
-  const createStatusVisualization = (statusCounts, container) => {
+  const createStatusVisualization = (statusCounts, container, categoryInfo = null) => {
     if (!container) return;
-  
+
     container.innerHTML = '';
     const total = Object.values(statusCounts).reduce((sum, count) => sum + count, 0);
   
@@ -118,6 +118,27 @@ export default apiInitializer("0.11.1", (api) => {
       container.style.display = 'block';
     }
   
+    // Add a "Show All" button that appears when filtered
+    const currentPath = window.location.pathname;
+    const isFiltered = currentPath.includes('/tags/c/') && currentPath.split('/').length > 6 ||
+                       currentPath.includes('/tags/intersection/');
+
+    if (isFiltered && categoryInfo) {
+      const showAllButton = document.createElement('a');
+      showAllButton.className = 'ideas-show-all-button';
+      showAllButton.textContent = '← Show All Ideas';
+
+      // Build the "show all" URL
+      if (categoryInfo.isCategory) {
+        const { parentSlug, categorySlug, categoryId } = categoryInfo;
+        showAllButton.href = `/c/${parentSlug}${categorySlug}/${categoryId}`;
+      } else if (categoryInfo.isTag) {
+        showAllButton.href = `/tag/${categoryInfo.currentTag}`;
+      }
+
+      container.appendChild(showAllButton);
+    }
+
     const header = document.createElement('div');
     header.className = 'ideas-visualization-header';
     const chartContainer = document.createElement('div');
@@ -173,10 +194,10 @@ export default apiInitializer("0.11.1", (api) => {
     if (typeof Chart === 'undefined') {
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
-      script.onload = () => createBarChart(canvas, labels, data, backgroundColors, total);
+      script.onload = () => createBarChart(canvas, labels, data, backgroundColors, total, categoryInfo);
       document.head.appendChild(script);
     } else {
-      createBarChart(canvas, labels, data, backgroundColors, total);
+      createBarChart(canvas, labels, data, backgroundColors, total, categoryInfo);
     }
   };
   
@@ -219,13 +240,13 @@ export default apiInitializer("0.11.1", (api) => {
     window.ideasStatusChart.update();
   };
 
-  const createBarChart = (canvas, labels, data, backgroundColors, total) => {
+  const createBarChart = (canvas, labels, data, backgroundColors, total, categoryInfo = null) => {
     const chartTitle = `${total} ${total === 1 ? 'Idea' : 'Ideas'}`;
     // Using scriptable options for dynamic theme colors; no returnPrimaryColor helper needed
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    
+
     window.ideasStatusChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -242,6 +263,26 @@ export default apiInitializer("0.11.1", (api) => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        onClick: (event, elements) => {
+          if (elements.length > 0) {
+            const index = elements[0].index;
+            const statusKey = Object.keys(tagMap)[index];
+
+            // Build the URL based on whether we're on a category or tag page
+            let targetUrl;
+            if (categoryInfo && categoryInfo.isCategory) {
+              const { parentSlug, categorySlug, categoryId } = categoryInfo;
+              targetUrl = `/tags/c/${parentSlug}${categorySlug}/${categoryId}/${statusKey}`;
+            } else if (categoryInfo && categoryInfo.isTag) {
+              const { currentTag } = categoryInfo;
+              targetUrl = `/tags/intersection/${currentTag}/${statusKey}`;
+            }
+
+            if (targetUrl) {
+              window.location.href = targetUrl;
+            }
+          }
+        },
       plugins: {
           legend: {
             display: false
@@ -505,7 +546,15 @@ export default apiInitializer("0.11.1", (api) => {
       try {
         const topics = await fetchAllTopicsInCategory(currentCategory.id);
         const statusCounts = buildStatusCounts(topics);
-        createStatusVisualization(statusCounts, statusVisualization);
+
+        // Pass category info for clickable bars
+        const categoryInfo = {
+          isCategory: true,
+          parentSlug,
+          categorySlug,
+          categoryId: currentCategory.id
+        };
+        createStatusVisualization(statusCounts, statusVisualization, categoryInfo);
 
         // Check if we're on a filtered page and update chart title
         const currentPath = window.location.pathname;
@@ -543,7 +592,13 @@ export default apiInitializer("0.11.1", (api) => {
         try {
           const topics = await fetchAllTopicsForTag(currentTag);
           const statusCounts = buildStatusCounts(topics);
-          createStatusVisualization(statusCounts, statusVisualization);
+
+          // Pass tag info for clickable bars
+          const categoryInfo = {
+            isTag: true,
+            currentTag
+          };
+          createStatusVisualization(statusCounts, statusVisualization, categoryInfo);
 
           // Check if we're on a filtered tag intersection page
           const currentPath = window.location.pathname;
