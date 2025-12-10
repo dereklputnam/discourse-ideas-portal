@@ -188,7 +188,7 @@ export default apiInitializer("0.11.1", (api) => {
     if (filterTag && statusCounts[filterTag] !== undefined) {
       count = statusCounts[filterTag];
       const statusName = tagMap[filterTag];
-      title = `${count} ${count === 1 ? 'Idea' : 'Ideas'} - ${statusName}`;
+      title = `${count} ${statusName} ${count === 1 ? 'Idea' : 'Ideas'}`;
 
       // Dim other bars by reducing their opacity
       const chart = window.ideasStatusChart;
@@ -264,6 +264,11 @@ export default apiInitializer("0.11.1", (api) => {
             titleFont: { size: 13 },
             bodyFont: { size: 12 },
             callbacks: {
+              title: (context) => {
+                // Get the status key from the original tagMap order
+                const statusKey = Object.keys(tagMap)[context[0].dataIndex];
+                return tagMap[statusKey];
+              },
               label: (context) => {
                 const count = context.raw;
                 const percent = Math.round((count / data.reduce((a, b) => a + b, 0)) * 100);
