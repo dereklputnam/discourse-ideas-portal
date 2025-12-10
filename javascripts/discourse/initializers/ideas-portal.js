@@ -181,10 +181,27 @@ export default apiInitializer("0.11.1", (api) => {
   };
   
 
+  const updateChartTitle = (statusCounts, filterTag = null) => {
+    if (!window.ideasStatusChart) return;
+
+    let count, title;
+    if (filterTag && statusCounts[filterTag] !== undefined) {
+      count = statusCounts[filterTag];
+      const statusName = tagMap[filterTag];
+      title = `${count} ${count === 1 ? 'idea' : 'ideas'} - ${statusName}`;
+    } else {
+      count = Object.values(statusCounts).reduce((sum, c) => sum + c, 0);
+      title = `${count} ${count === 1 ? 'idea' : 'ideas'}`;
+    }
+
+    window.ideasStatusChart.options.plugins.title.text = title;
+    window.ideasStatusChart.update();
+  };
+
   const createBarChart = (canvas, labels, data, backgroundColors, total) => {
     const chartTitle = `${total} ${total === 1 ? 'idea' : 'ideas'}`;
     // Using scriptable options for dynamic theme colors; no returnPrimaryColor helper needed
-  
+
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
@@ -457,12 +474,22 @@ export default apiInitializer("0.11.1", (api) => {
         filter.textContent = tagMap[tag];
         filtersWrapper.appendChild(filter);
       });
-      
+
       // Try to fetch topics and create visualization
       try {
         const topics = await fetchAllTopicsInCategory(currentCategory.id);
         const statusCounts = buildStatusCounts(topics);
         createStatusVisualization(statusCounts, statusVisualization);
+
+        // Check if we're on a filtered page and update chart title
+        const currentPath = window.location.pathname;
+        const tagMatch = currentPath.match(/\/tags\/c\/[^\/]+\/[^\/]+\/\d+\/([^\/]+)/);
+        if (tagMatch && tagMatch[1]) {
+          const activeTag = tagMatch[1];
+          if (statusCounts[activeTag] !== undefined) {
+            updateChartTitle(statusCounts, activeTag);
+          }
+        }
       } catch (e) {
         console.error("Ideas Portal: Failed to load topics for static chart:", e);
       }
@@ -491,6 +518,16 @@ export default apiInitializer("0.11.1", (api) => {
           const topics = await fetchAllTopicsForTag(currentTag);
           const statusCounts = buildStatusCounts(topics);
           createStatusVisualization(statusCounts, statusVisualization);
+
+          // Check if we're on a filtered tag intersection page
+          const currentPath = window.location.pathname;
+          const tagIntersectionMatch = currentPath.match(/\/tags\/intersection\/[^\/]+\/([^\/]+)/);
+          if (tagIntersectionMatch && tagIntersectionMatch[1]) {
+            const activeTag = tagIntersectionMatch[1];
+            if (statusCounts[activeTag] !== undefined) {
+              updateChartTitle(statusCounts, activeTag);
+            }
+          }
         } catch (e) {
           console.error("Ideas Portal: Failed to load topics for tag chart:", e);
           // Show fallback message if chart creation fails
