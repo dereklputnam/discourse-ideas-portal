@@ -120,17 +120,19 @@ export default apiInitializer("0.11.1", (api) => {
   
     const header = document.createElement('div');
     header.className = 'ideas-visualization-header';
+
     const chartContainer = document.createElement('div');
     chartContainer.style.height = '200px';
     chartContainer.style.width = '100%';
     chartContainer.style.position = 'relative';
-    container.appendChild(chartContainer);
-  
+
     const canvas = document.createElement('canvas');
     canvas.id = 'ideas-status-chart';
     canvas.style.height = '100%';
     canvas.style.width = '100%';
     chartContainer.appendChild(canvas);
+
+    container.appendChild(chartContainer);
   
     const labels = [], data = [], backgroundColors = [];
 
@@ -309,8 +311,9 @@ export default apiInitializer("0.11.1", (api) => {
 
     titleContainer.appendChild(actionArea);
 
-    // Insert before the canvas
-    canvas.parentElement.insertBefore(titleContainer, canvas);
+    // Insert title at the beginning of the status visualization container
+    const statusVisualizationContainer = canvas.parentElement.parentElement;
+    statusVisualizationContainer.insertBefore(titleContainer, statusVisualizationContainer.firstChild);
 
     window.ideasStatusChart = new Chart(ctx, {
       type: 'bar',
