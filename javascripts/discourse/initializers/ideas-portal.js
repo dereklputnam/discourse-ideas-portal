@@ -594,8 +594,6 @@ export default apiInitializer("0.11.1", (api) => {
         }
       }
     }
-    
-    container.appendChild(filtersWrapper);
 
     const target = document.querySelector('.navigation-container');
     if (target) {
