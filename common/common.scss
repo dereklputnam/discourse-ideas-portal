@@ -118,14 +118,14 @@
 
 .ideas-portal-category .ideas-tag-filters .tag-filter {
   display: inline-block;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 16px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: bold;
   text-transform: uppercase;
   color: white;
   text-decoration: none;
-  margin-right: 4px;
+  margin: 2px 3px;
 }
 
 .ideas-portal-category .ideas-tag-filters .tag-filter-reset {
@@ -183,9 +183,10 @@ body:not(.tag-ideas) .ideas-portal-category .category-breadcrumb li:last-child {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px 12px;
+  gap: 4px 6px;
   background: var(--secondary);
   margin: auto auto 0 auto;
+  max-width: 100%;
 }
 
 /* Category badge styling - hide first, second, and last wrappers */
