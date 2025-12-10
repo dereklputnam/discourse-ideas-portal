@@ -241,13 +241,15 @@ export default apiInitializer("0.11.1", (api) => {
         titleElement.textContent = title;
       }
 
-      // Update action area to show click indicator
+      // Update action area to show help button
       if (actionArea) {
         actionArea.innerHTML = '';
-        const clickIndicator = document.createElement('span');
-        clickIndicator.className = 'ideas-click-indicator';
-        clickIndicator.textContent = '(Click bars to filter)';
-        actionArea.appendChild(clickIndicator);
+        const helpButton = document.createElement('button');
+        helpButton.className = 'ideas-help-button';
+        helpButton.textContent = '?';
+        helpButton.title = 'Click a status to filter on it';
+        helpButton.type = 'button';
+        actionArea.appendChild(helpButton);
       }
 
       // Reset all bars to full opacity
@@ -303,10 +305,12 @@ export default apiInitializer("0.11.1", (api) => {
 
       actionArea.appendChild(showAllButton);
     } else {
-      const clickIndicator = document.createElement('span');
-      clickIndicator.className = 'ideas-click-indicator';
-      clickIndicator.textContent = '(Click bars to filter)';
-      actionArea.appendChild(clickIndicator);
+      const helpButton = document.createElement('button');
+      helpButton.className = 'ideas-help-button';
+      helpButton.textContent = '?';
+      helpButton.title = 'Click a status to filter on it';
+      helpButton.type = 'button';
+      actionArea.appendChild(helpButton);
     }
 
     titleContainer.appendChild(actionArea);

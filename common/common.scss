@@ -9,13 +9,14 @@
   visibility: visible !important; /* Ensure it's visible */
 }
 
-/* Chart title container - contains title and action area side by side */
+/* Chart title container - contains title and action area */
 .ideas-portal-category .ideas-chart-title-container {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   margin-bottom: 10px;
-  gap: 15px;
+  gap: 10px;
+  position: relative;
 }
 
 /* Main chart title */
@@ -23,23 +24,37 @@
   font-size: 1.5rem;
   font-weight: bold;
   color: var(--primary);
-  flex-shrink: 0;
+  text-align: center;
 }
 
-/* Action area - contains either click indicator or show all button */
+/* Action area - contains either help button or show all button */
 .ideas-portal-category .ideas-chart-action-area {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  flex-shrink: 0;
 }
 
-/* Click indicator text */
-.ideas-portal-category .ideas-click-indicator {
-  color: var(--primary-medium);
-  font-size: 0.85rem;
-  font-style: italic;
-  font-weight: 500;
+/* Help button styling */
+.ideas-portal-category .ideas-help-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: var(--primary-low);
+  color: var(--primary);
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: help;
+  border: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.ideas-portal-category .ideas-help-button:hover {
+  background-color: var(--primary-medium);
+  color: var(--secondary);
+  transform: scale(1.1);
 }
 
 /* Small Show All button styling - matching Discourse primary button treatment */
