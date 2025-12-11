@@ -510,9 +510,9 @@ export default apiInitializer("0.11.1", (api) => {
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillStyle = 'white';
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-          ctx.shadowBlur = 4;
-          ctx.shadowOffsetY = 2;
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
+          ctx.shadowBlur = 2;
+          ctx.shadowOffsetY = 1;
 
           // Multi-line layout with adaptive sizing based on bar width and text length
           const countText = `${count} idea${count !== 1 ? 's' : ''}`;
@@ -550,12 +550,16 @@ export default apiInitializer("0.11.1", (api) => {
 
           // Check if text needs to be displayed outside the bar
           const MIN_FONT_SIZE = 12; // Don't scale below this (increased for better readability)
-          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 50; // Minimum bar width to attempt inside text
+          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 60; // Minimum bar width to attempt inside text (increased)
           let renderTextOutside = false;
+
+          // Debug logging
+          console.log(`Bar: ${statusName}, Width: ${barWidth}px, MaxTextWidth: ${maxTextWidth}px`);
 
           // If bar is too narrow or text would be too small, render outside
           if (barWidth < MIN_BAR_WIDTH_FOR_INSIDE_TEXT) {
             renderTextOutside = true;
+            console.log(`  → Rendering OUTSIDE (bar too narrow: ${barWidth} < ${MIN_BAR_WIDTH_FOR_INSIDE_TEXT})`);
           } else if (maxTextWidth > barWidth - 10) {
             const scaleFactor = (barWidth - 10) / maxTextWidth;
             const potentialFontSize = Math.floor(statusFontSize * scaleFactor);
@@ -563,14 +567,18 @@ export default apiInitializer("0.11.1", (api) => {
             // If scaling would make text too small, render outside instead
             if (potentialFontSize < MIN_FONT_SIZE) {
               renderTextOutside = true;
+              console.log(`  → Rendering OUTSIDE (font too small: ${potentialFontSize} < ${MIN_FONT_SIZE})`);
               // Keep normal font sizes for outside rendering
             } else {
               // Scale down to fit inside
+              console.log(`  → Rendering INSIDE (scaled to ${potentialFontSize}px)`);
               statusFontSize = Math.max(MIN_FONT_SIZE, potentialFontSize);
               countFontSize = Math.max(MIN_FONT_SIZE - 1, Math.floor(countFontSize * scaleFactor));
               percentFontSize = Math.max(MIN_FONT_SIZE - 2, Math.floor(percentFontSize * scaleFactor));
               lineSpacing = Math.max(11, Math.floor(lineSpacing * scaleFactor));
             }
+          } else {
+            console.log(`  → Rendering INSIDE (text fits)`);
           }
 
           if (renderTextOutside) {
@@ -584,10 +592,19 @@ export default apiInitializer("0.11.1", (api) => {
             percentFontSize = 11;
             lineSpacing = 14;
 
+            // Recalculate text width with new font size for proper box width
+            ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
+            const externalMaxStatusWidth = Math.max(...statusLines.map(line => ctx.measureText(line).width));
+            ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
+            const externalCountWidth = ctx.measureText(countText).width;
+            ctx.font = `${percentFontSize}px Arial, sans-serif`;
+            const externalPercentWidth = ctx.measureText(percentText).width;
+            const externalMaxWidth = Math.max(externalMaxStatusWidth, externalCountWidth, externalPercentWidth);
+
             // Calculate total height for background box
             const totalLines = statusLines.length + 2;
             const boxHeight = totalLines * lineSpacing + 8;
-            const boxWidth = Math.max(maxStatusTextWidth, 80) + 16;
+            const boxWidth = externalMaxWidth + 16;
             const boxX = bar.x - boxWidth / 2;
             const boxY = barTop - boxHeight - 5;
 
