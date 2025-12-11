@@ -540,7 +540,7 @@ export default apiInitializer("0.11.1", (api) => {
           let maxStatusTextWidth = Math.max(...statusLines.map(line => ctx.measureText(line).width));
 
           // Check if text needs to be displayed outside the bar
-          const MIN_FONT_SIZE = 9; // Don't scale below this
+          const MIN_FONT_SIZE = 11; // Don't scale below this (increased for better readability)
           let renderTextOutside = false;
 
           if (maxStatusTextWidth > barWidth - 10) {
@@ -614,21 +614,30 @@ export default apiInitializer("0.11.1", (api) => {
             const totalHeight = (totalLines - 1) * lineSpacing;
             const startY = barCenterY - (totalHeight / 2);
 
+            // Add text stroke for better contrast, especially on dimmed bars
+            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.lineWidth = 2;
             ctx.fillStyle = 'white';
 
-            // Draw status name lines
+            // Draw status name lines with stroke
             ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
             statusLines.forEach((line, index) => {
-              ctx.fillText(line, bar.x, startY + (index * lineSpacing));
+              const y = startY + (index * lineSpacing);
+              ctx.strokeText(line, bar.x, y);
+              ctx.fillText(line, bar.x, y);
             });
 
-            // Draw count
+            // Draw count with stroke
             ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
-            ctx.fillText(countText, bar.x, startY + (statusLines.length * lineSpacing));
+            const countY = startY + (statusLines.length * lineSpacing);
+            ctx.strokeText(countText, bar.x, countY);
+            ctx.fillText(countText, bar.x, countY);
 
-            // Draw percentage
+            // Draw percentage with stroke
             ctx.font = `bold ${percentFontSize}px Arial, sans-serif`;
-            ctx.fillText(percentText, bar.x, startY + ((statusLines.length + 1) * lineSpacing));
+            const percentY = startY + ((statusLines.length + 1) * lineSpacing);
+            ctx.strokeText(percentText, bar.x, percentY);
+            ctx.fillText(percentText, bar.x, percentY);
           }
 
           ctx.restore();
