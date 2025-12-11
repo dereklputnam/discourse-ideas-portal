@@ -501,9 +501,6 @@ export default apiInitializer("0.11.1", (api) => {
 
           // Get bar dimensions
           const barTop = bar.y;
-          const barBottom = bar.base;
-          const barHeight = barBottom - barTop;
-          const barCenterY = barTop + barHeight / 2;
 
           // Transform the bar into a tooltip display
           ctx.save();
@@ -529,168 +526,62 @@ export default apiInitializer("0.11.1", (api) => {
           // Split status name into lines for multi-word statuses
           const statusLines = statusName.includes(' ') ? statusName.split(' ') : [statusName];
 
-          // Determine font sizes based on bar width and status name length
-          let statusFontSize = 15;
-          let countFontSize = 14;
-          let percentFontSize = 13;
-          let lineSpacing = 13;
+          // Always render tooltip outside the bar for consistency
+          // Set font sizes for tooltip
+          const statusFontSize = 13;
+          const countFontSize = 12;
+          const percentFontSize = 11;
+          const lineSpacing = 14;
 
-          // Measure the longest status line width to see if we need to scale down
+          // Render text above the bar with contrasting background
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+
+          // Calculate text width with tooltip font size for proper box width
           ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
-          let maxStatusTextWidth = Math.max(...statusLines.map(line => ctx.measureText(line).width));
-
-          // Also measure count and percentage text
+          const externalMaxStatusWidth = Math.max(...statusLines.map(line => ctx.measureText(line).width));
           ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
-          const countTextWidth = ctx.measureText(countText).width;
-          ctx.font = `bold ${percentFontSize}px Arial, sans-serif`;
-          const percentTextWidth = ctx.measureText(percentText).width;
+          const externalCountWidth = ctx.measureText(countText).width;
+          ctx.font = `${percentFontSize}px Arial, sans-serif`;
+          const externalPercentWidth = ctx.measureText(percentText).width;
+          const externalMaxWidth = Math.max(externalMaxStatusWidth, externalCountWidth, externalPercentWidth);
 
-          // Get the maximum width needed for any text element
-          const maxTextWidth = Math.max(maxStatusTextWidth, countTextWidth, percentTextWidth);
+          // Calculate total height for background box
+          const totalLines = statusLines.length + 2;
+          const boxHeight = totalLines * lineSpacing + 8;
+          const boxWidth = externalMaxWidth + 16;
+          const boxX = bar.x - boxWidth / 2;
+          const boxY = barTop - boxHeight - 5;
 
-          // Check if text needs to be displayed outside the bar
-          const MIN_FONT_SIZE = 11; // Minimum readable font size
-          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 55; // Narrow bars always use external tooltip
-          const MIN_BAR_HEIGHT_FOR_INSIDE_TEXT = 50; // Minimum height to fit text vertically
-          let renderTextOutside = false;
+          // Draw background box with border for contrast (works in light and dark mode)
+          ctx.shadowColor = 'transparent';
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+          ctx.strokeStyle = '#333';
+          ctx.lineWidth = 1;
+          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
+          ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
 
-          // Calculate required height for text
-          const totalLines = statusLines.length + 2; // status lines + count + percentage
-          const requiredHeight = (totalLines - 1) * lineSpacing + (statusFontSize * 2); // Approximate height needed
+          // Draw text in dark color for contrast
+          ctx.fillStyle = '#333';
+          ctx.shadowColor = 'transparent';
 
-          // Debug logging
-          console.log(`Bar: ${statusName}, Width: ${barWidth}px, Height: ${barHeight}px, MaxTextWidth: ${maxTextWidth}px, RequiredHeight: ${requiredHeight}px`);
+          let currentY = boxY + lineSpacing + 4;
 
-          // If bar is narrow or too short, always render outside
-          if (barWidth < MIN_BAR_WIDTH_FOR_INSIDE_TEXT) {
-            renderTextOutside = true;
-            console.log(`  → Rendering OUTSIDE (bar too narrow: ${barWidth} < ${MIN_BAR_WIDTH_FOR_INSIDE_TEXT})`);
-          } else if (barHeight < MIN_BAR_HEIGHT_FOR_INSIDE_TEXT || barHeight < requiredHeight) {
-            renderTextOutside = true;
-            console.log(`  → Rendering OUTSIDE (bar too short: ${barHeight}px < ${Math.max(MIN_BAR_HEIGHT_FOR_INSIDE_TEXT, requiredHeight)}px required)`);
-          } else if (maxTextWidth > barWidth - 10) {
-            const scaleFactor = (barWidth - 10) / maxTextWidth;
-            const potentialFontSize = Math.floor(statusFontSize * scaleFactor);
-
-            // If scaling would make text too small OR bar is moderately narrow with small font, render outside
-            if (potentialFontSize < MIN_FONT_SIZE || (potentialFontSize < 13 && barWidth < 80)) {
-              renderTextOutside = true;
-              console.log(`  → Rendering OUTSIDE (font too small: ${potentialFontSize} < ${MIN_FONT_SIZE} OR cramped: width ${barWidth}px, font ${potentialFontSize}px)`);
-              // Keep normal font sizes for outside rendering
-            } else {
-              // Scale down to fit inside
-              console.log(`  → Rendering INSIDE (scaled to ${potentialFontSize}px)`);
-              statusFontSize = Math.max(MIN_FONT_SIZE, potentialFontSize);
-              countFontSize = Math.max(MIN_FONT_SIZE - 1, Math.floor(countFontSize * scaleFactor));
-              percentFontSize = Math.max(MIN_FONT_SIZE - 2, Math.floor(percentFontSize * scaleFactor));
-              lineSpacing = Math.max(11, Math.floor(lineSpacing * scaleFactor));
-            }
-          } else {
-            console.log(`  → Rendering INSIDE (text fits)`);
-          }
-
-          if (renderTextOutside) {
-            // Render text above the bar with contrasting background
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-
-            // Reset to standard font sizes
-            statusFontSize = 13;
-            countFontSize = 12;
-            percentFontSize = 11;
-            lineSpacing = 14;
-
-            // Recalculate text width with new font size for proper box width
-            ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
-            const externalMaxStatusWidth = Math.max(...statusLines.map(line => ctx.measureText(line).width));
-            ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
-            const externalCountWidth = ctx.measureText(countText).width;
-            ctx.font = `${percentFontSize}px Arial, sans-serif`;
-            const externalPercentWidth = ctx.measureText(percentText).width;
-            const externalMaxWidth = Math.max(externalMaxStatusWidth, externalCountWidth, externalPercentWidth);
-
-            // Calculate total height for background box
-            const totalLines = statusLines.length + 2;
-            const boxHeight = totalLines * lineSpacing + 8;
-            const boxWidth = externalMaxWidth + 16;
-            const boxX = bar.x - boxWidth / 2;
-            const boxY = barTop - boxHeight - 5;
-
-            // Draw background box with border for contrast (works in light and dark mode)
-            ctx.shadowColor = 'transparent';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-            ctx.strokeStyle = '#333';
-            ctx.lineWidth = 1;
-            ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-            ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
-
-            // Draw text in dark color for contrast
-            ctx.fillStyle = '#333';
-            ctx.shadowColor = 'transparent';
-
-            let currentY = boxY + lineSpacing + 4;
-
-            // Draw status name lines
-            ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
-            statusLines.forEach((line) => {
-              ctx.fillText(line, bar.x, currentY);
-              currentY += lineSpacing;
-            });
-
-            // Draw count
-            ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
-            ctx.fillText(countText, bar.x, currentY);
+          // Draw status name lines
+          ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
+          statusLines.forEach((line) => {
+            ctx.fillText(line, bar.x, currentY);
             currentY += lineSpacing;
+          });
 
-            // Draw percentage
-            ctx.font = `${percentFontSize}px Arial, sans-serif`;
-            ctx.fillText(percentText, bar.x, currentY);
+          // Draw count
+          ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
+          ctx.fillText(countText, bar.x, currentY);
+          currentY += lineSpacing;
 
-          } else {
-            // Render text inside the bar (existing behavior)
-            const totalLines = statusLines.length + 2;
-            const totalHeight = (totalLines - 1) * lineSpacing;
-            const startY = barCenterY - (totalHeight / 2);
-
-            // Get computed color for axis labels (adapts to light/dark theme)
-            const axisLabelColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#333';
-
-            // Check if bar is dimmed (opacity 0.3)
-            const barColor = displayBackgroundColors[dataIndex];
-            const isDimmed = barColor && barColor.includes('0.3');
-
-            if (isDimmed) {
-              // Use axis label color for dimmed bars (better visibility)
-              ctx.fillStyle = axisLabelColor;
-              ctx.strokeStyle = 'transparent';
-              ctx.lineWidth = 0;
-            } else {
-              // Use white with black stroke for active bars
-              ctx.fillStyle = 'white';
-              ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-              ctx.lineWidth = 2;
-            }
-
-            // Draw status name lines
-            ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
-            statusLines.forEach((line, index) => {
-              const y = startY + (index * lineSpacing);
-              if (!isDimmed) ctx.strokeText(line, bar.x, y);
-              ctx.fillText(line, bar.x, y);
-            });
-
-            // Draw count
-            ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
-            const countY = startY + (statusLines.length * lineSpacing);
-            if (!isDimmed) ctx.strokeText(countText, bar.x, countY);
-            ctx.fillText(countText, bar.x, countY);
-
-            // Draw percentage
-            ctx.font = `bold ${percentFontSize}px Arial, sans-serif`;
-            const percentY = startY + ((statusLines.length + 1) * lineSpacing);
-            if (!isDimmed) ctx.strokeText(percentText, bar.x, percentY);
-            ctx.fillText(percentText, bar.x, percentY);
-          }
+          // Draw percentage
+          ctx.font = `${percentFontSize}px Arial, sans-serif`;
+          ctx.fillText(percentText, bar.x, currentY);
 
           ctx.restore();
         }
