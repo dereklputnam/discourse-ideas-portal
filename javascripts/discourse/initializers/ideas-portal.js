@@ -514,29 +514,22 @@ export default apiInitializer("0.11.1", (api) => {
           ctx.shadowBlur = 4;
           ctx.shadowOffsetY = 2;
 
-          // Measure bar width to determine layout
-          const barWidth = bar.width;
+          // Three-line layout: Status name, count, percentage
           const statusText = statusName;
-          const countText = `${count} idea${count !== 1 ? 's' : ''} (${percent}%)`;
+          const countText = `${count} idea${count !== 1 ? 's' : ''}`;
+          const percentText = `(${percent}%)`;
 
-          // Test if combined text fits in one line
+          // Line 1: Status name
+          ctx.font = 'bold 15px sans-serif';
+          ctx.fillText(statusText, bar.x, barCenterY - 16);
+
+          // Line 2: Count
           ctx.font = 'bold 14px sans-serif';
-          const combinedText = `${statusText}: ${countText}`;
-          const combinedWidth = ctx.measureText(combinedText).width;
+          ctx.fillText(countText, bar.x, barCenterY);
 
-          // If bar is wide enough, show on one line; otherwise split into two
-          if (barWidth > combinedWidth + 20) {
-            // Single line layout
-            ctx.font = 'bold 14px sans-serif';
-            ctx.fillText(combinedText, bar.x, barCenterY);
-          } else {
-            // Two line layout
-            ctx.font = 'bold 15px sans-serif';
-            ctx.fillText(statusText, bar.x, barCenterY - 11);
-
-            ctx.font = 'bold 13px sans-serif';
-            ctx.fillText(countText, bar.x, barCenterY + 11);
-          }
+          // Line 3: Percentage
+          ctx.font = 'bold 13px sans-serif';
+          ctx.fillText(percentText, bar.x, barCenterY + 16);
 
           ctx.restore();
         }
