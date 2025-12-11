@@ -482,112 +482,6 @@ export default apiInitializer("0.11.1", (api) => {
       });
     }
 
-    // Custom plugin to transform bars into tooltip displays on hover
-    const barTooltipPlugin = {
-      id: 'barTooltip',
-      afterDatasetsDraw(chart) {
-        const { ctx, tooltip } = chart;
-
-        if (tooltip && tooltip.opacity > 0 && tooltip.dataPoints && tooltip.dataPoints.length > 0) {
-          const dataPoint = tooltip.dataPoints[0];
-          const { dataIndex } = dataPoint;
-          const statusKey = Object.keys(tagMap)[dataIndex];
-          const statusName = tagMap[statusKey];
-          const count = dataPoint.raw;
-          const percent = Math.round((count / data.reduce((a, b) => a + b, 0)) * 100);
-
-          const meta = chart.getDatasetMeta(0);
-          const bar = meta.data[dataIndex];
-
-          // Get bar dimensions
-          const barTop = bar.y;
-
-          // Transform the bar into a tooltip display
-          ctx.save();
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillStyle = 'white';
-          ctx.shadowColor = 'rgba(0, 0, 0, 0.15)';
-          ctx.shadowBlur = 2;
-          ctx.shadowOffsetY = 1;
-
-          // Multi-line layout with adaptive sizing based on bar width and text length
-          const countText = `${count} idea${count !== 1 ? 's' : ''}`;
-          const percentText = `(${percent}%)`;
-          const barWidth = bar.width;
-
-          // Skip rendering text if bar is too small (less than 35px width)
-          const MIN_BAR_WIDTH_FOR_TEXT = 35;
-          if (barWidth < MIN_BAR_WIDTH_FOR_TEXT) {
-            ctx.restore();
-            return;
-          }
-
-          // Split status name into lines for multi-word statuses
-          const statusLines = statusName.includes(' ') ? statusName.split(' ') : [statusName];
-
-          // Always render tooltip outside the bar for consistency
-          // Set font sizes for tooltip
-          const statusFontSize = 13;
-          const countFontSize = 12;
-          const percentFontSize = 11;
-          const lineSpacing = 14;
-
-          // Render text above the bar with contrasting background
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'bottom';
-
-          // Calculate text width with tooltip font size for proper box width
-          ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
-          const externalMaxStatusWidth = Math.max(...statusLines.map(line => ctx.measureText(line).width));
-          ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
-          const externalCountWidth = ctx.measureText(countText).width;
-          ctx.font = `${percentFontSize}px Arial, sans-serif`;
-          const externalPercentWidth = ctx.measureText(percentText).width;
-          const externalMaxWidth = Math.max(externalMaxStatusWidth, externalCountWidth, externalPercentWidth);
-
-          // Calculate total height for background box
-          const totalLines = statusLines.length + 2;
-          const boxHeight = totalLines * lineSpacing + 8;
-          const boxWidth = externalMaxWidth + 16;
-          const boxX = bar.x - boxWidth / 2;
-          const boxY = barTop - boxHeight - 5;
-
-          // Draw background box with border for contrast (works in light and dark mode)
-          ctx.shadowColor = 'transparent';
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-          ctx.strokeStyle = '#333';
-          ctx.lineWidth = 1;
-          ctx.fillRect(boxX, boxY, boxWidth, boxHeight);
-          ctx.strokeRect(boxX, boxY, boxWidth, boxHeight);
-
-          // Draw text in dark color for contrast
-          ctx.fillStyle = '#333';
-          ctx.shadowColor = 'transparent';
-
-          let currentY = boxY + lineSpacing + 4;
-
-          // Draw status name lines
-          ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
-          statusLines.forEach((line) => {
-            ctx.fillText(line, bar.x, currentY);
-            currentY += lineSpacing;
-          });
-
-          // Draw count
-          ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
-          ctx.fillText(countText, bar.x, currentY);
-          currentY += lineSpacing;
-
-          // Draw percentage
-          ctx.font = `${percentFontSize}px Arial, sans-serif`;
-          ctx.fillText(percentText, bar.x, currentY);
-
-          ctx.restore();
-        }
-      }
-    };
-
     window.ideasStatusChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -603,21 +497,9 @@ export default apiInitializer("0.11.1", (api) => {
           categoryPercentage: 0.85   // Reduce category width to 85% of available space
         }]
       },
-      plugins: [barTooltipPlugin],
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        onHover: (event, activeElements) => {
-          // Trigger tooltip on hover
-          const chart = window.ideasStatusChart;
-          if (activeElements.length > 0) {
-            chart.tooltip.setActiveElements(activeElements, { x: event.x, y: event.y });
-            chart.update();
-          } else {
-            chart.tooltip.setActiveElements([], { x: 0, y: 0 });
-            chart.update();
-          }
-        },
         onClick: (event, elements) => {
           if (elements.length > 0) {
             const index = elements[0].index;
@@ -646,7 +528,16 @@ export default apiInitializer("0.11.1", (api) => {
             display: false
           },
           tooltip: {
-            enabled: false  // Disable default tooltip
+            backgroundColor: 'rgba(0,0,0,0.8)',
+            titleFont: { size: 13 },
+            bodyFont: { size: 12 },
+            callbacks: {
+              label: (context) => {
+                const count = context.raw;
+                const percent = Math.round((count / data.reduce((a, b) => a + b, 0)) * 100);
+                return `${count} ideas (${percent}%)`;
+              }
+            }
           }
         },
         scales: {
