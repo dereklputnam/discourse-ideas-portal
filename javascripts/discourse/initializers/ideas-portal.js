@@ -550,13 +550,13 @@ export default apiInitializer("0.11.1", (api) => {
 
           // Check if text needs to be displayed outside the bar
           const MIN_FONT_SIZE = 11; // Minimum readable font size
-          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 45; // Very narrow bars always use external tooltip
+          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 55; // Narrow bars always use external tooltip
           let renderTextOutside = false;
 
           // Debug logging
           console.log(`Bar: ${statusName}, Width: ${barWidth}px, MaxTextWidth: ${maxTextWidth}px`);
 
-          // If bar is extremely narrow, always render outside
+          // If bar is narrow, always render outside
           if (barWidth < MIN_BAR_WIDTH_FOR_INSIDE_TEXT) {
             renderTextOutside = true;
             console.log(`  → Rendering OUTSIDE (bar too narrow: ${barWidth} < ${MIN_BAR_WIDTH_FOR_INSIDE_TEXT})`);
@@ -565,7 +565,7 @@ export default apiInitializer("0.11.1", (api) => {
             const potentialFontSize = Math.floor(statusFontSize * scaleFactor);
 
             // If scaling would make text too small OR bar is moderately narrow with small font, render outside
-            if (potentialFontSize < MIN_FONT_SIZE || (potentialFontSize < 13 && barWidth < 75)) {
+            if (potentialFontSize < MIN_FONT_SIZE || (potentialFontSize < 13 && barWidth < 80)) {
               renderTextOutside = true;
               console.log(`  → Rendering OUTSIDE (font too small: ${potentialFontSize} < ${MIN_FONT_SIZE} OR cramped: width ${barWidth}px, font ${potentialFontSize}px)`);
               // Keep normal font sizes for outside rendering
