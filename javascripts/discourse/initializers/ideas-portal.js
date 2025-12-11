@@ -173,19 +173,8 @@ export default apiInitializer("0.11.1", (api) => {
 
     // Ensure all statuses are included, even with a count of 0
     Object.keys(tagMap).forEach(status => {
-      // Split multi-word labels into multiple lines for better display
       const labelText = tagMap[status];
-      const words = labelText.split(' ');
-      let label;
-
-      // If label has multiple words, split into array for multi-line display
-      if (words.length > 1) {
-        label = words;  // Chart.js will render array as multi-line
-      } else {
-        label = labelText;
-      }
-
-      labels.push(label);  // Add label for every status
+      labels.push(labelText);  // Add label for every status
       data.push(statusCounts[status] || 0);  // Add count (0 if no topics for this status)
       let color;
       switch(status) {
