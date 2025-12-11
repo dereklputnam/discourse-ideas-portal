@@ -482,7 +482,7 @@ export default apiInitializer("0.11.1", (api) => {
       });
     }
 
-    // Custom plugin to show tooltip-like text on the bars themselves
+    // Custom plugin to transform bars into tooltip displays on hover
     const barTooltipPlugin = {
       id: 'barTooltip',
       afterDatasetsDraw(chart) {
@@ -499,26 +499,28 @@ export default apiInitializer("0.11.1", (api) => {
           const meta = chart.getDatasetMeta(0);
           const bar = meta.data[dataIndex];
 
-          // Draw text on the bar
+          // Get bar dimensions
+          const barTop = bar.y;
+          const barBottom = bar.base;
+          const barHeight = barBottom - barTop;
+          const barCenterY = barTop + barHeight / 2;
+
+          // Transform the bar into a tooltip display
           ctx.save();
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           ctx.fillStyle = 'white';
+          ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+          ctx.shadowBlur = 4;
+          ctx.shadowOffsetY = 2;
+
+          // Draw status name
+          ctx.font = 'bold 16px sans-serif';
+          ctx.fillText(statusName, bar.x, barCenterY - 12);
+
+          // Draw count and percentage
           ctx.font = 'bold 14px sans-serif';
-
-          const text = `${count} ideas (${percent}%)`;
-          const x = bar.x;
-          const y = bar.y;
-
-          // Add a semi-transparent background
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-          const textWidth = ctx.measureText(text).width;
-          const padding = 8;
-          ctx.fillRect(x - textWidth/2 - padding, y - 12, textWidth + padding * 2, 24);
-
-          // Draw the text
-          ctx.fillStyle = 'white';
-          ctx.fillText(text, x, y);
+          ctx.fillText(`${count} ideas (${percent}%)`, bar.x, barCenterY + 12);
 
           ctx.restore();
         }
