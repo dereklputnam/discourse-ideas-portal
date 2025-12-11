@@ -519,6 +519,14 @@ export default apiInitializer("0.11.1", (api) => {
           const percentText = `(${percent}%)`;
           const barWidth = bar.width;
 
+          // Skip rendering text if bar is too small (less than 35px width)
+          // The tooltip will still show all information on hover
+          const MIN_BAR_WIDTH_FOR_TEXT = 35;
+          if (barWidth < MIN_BAR_WIDTH_FOR_TEXT) {
+            ctx.restore();
+            return;
+          }
+
           // Split status name into lines for multi-word statuses
           const statusLines = statusName.includes(' ') ? statusName.split(' ') : [statusName];
 
