@@ -346,14 +346,30 @@ export default apiInitializer("0.11.1", (api) => {
     const statusVisualizationContainer = canvas.parentElement.parentElement;
     statusVisualizationContainer.insertBefore(titleContainer, statusVisualizationContainer.firstChild);
 
+    // Apply dimming to background colors if we're on a filtered page
+    let displayBackgroundColors = backgroundColors;
+    if (filterTag && statusCounts) {
+      const allStatuses = Object.keys(tagMap);
+      const filterIndex = allStatuses.indexOf(filterTag);
+
+      displayBackgroundColors = backgroundColors.map((color, index) => {
+        if (index === filterIndex) {
+          return color; // Keep active bar at full opacity
+        } else {
+          // Dim other bars by adding transparency
+          return color.replace('1)', '0.3)');
+        }
+      });
+    }
+
     window.ideasStatusChart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels,
         datasets: [{
           data,
-          backgroundColor: backgroundColors,
-          borderColor: backgroundColors.map(c => c.replace('0.7', '1')),
+          backgroundColor: displayBackgroundColors,
+          borderColor: displayBackgroundColors.map(c => c.replace('0.7', '1').replace('0.3)', '1)')),
           borderWidth: 1,
           borderRadius: 0,
           borderSkipped: false,
