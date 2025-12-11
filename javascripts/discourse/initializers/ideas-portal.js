@@ -539,12 +539,25 @@ export default apiInitializer("0.11.1", (api) => {
           ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
           let maxStatusTextWidth = Math.max(...statusLines.map(line => ctx.measureText(line).width));
 
+          // Also measure count and percentage text
+          ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
+          const countTextWidth = ctx.measureText(countText).width;
+          ctx.font = `bold ${percentFontSize}px Arial, sans-serif`;
+          const percentTextWidth = ctx.measureText(percentText).width;
+
+          // Get the maximum width needed for any text element
+          const maxTextWidth = Math.max(maxStatusTextWidth, countTextWidth, percentTextWidth);
+
           // Check if text needs to be displayed outside the bar
-          const MIN_FONT_SIZE = 11; // Don't scale below this (increased for better readability)
+          const MIN_FONT_SIZE = 12; // Don't scale below this (increased for better readability)
+          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 50; // Minimum bar width to attempt inside text
           let renderTextOutside = false;
 
-          if (maxStatusTextWidth > barWidth - 10) {
-            const scaleFactor = (barWidth - 10) / maxStatusTextWidth;
+          // If bar is too narrow or text would be too small, render outside
+          if (barWidth < MIN_BAR_WIDTH_FOR_INSIDE_TEXT) {
+            renderTextOutside = true;
+          } else if (maxTextWidth > barWidth - 10) {
+            const scaleFactor = (barWidth - 10) / maxTextWidth;
             const potentialFontSize = Math.floor(statusFontSize * scaleFactor);
 
             // If scaling would make text too small, render outside instead
@@ -614,29 +627,43 @@ export default apiInitializer("0.11.1", (api) => {
             const totalHeight = (totalLines - 1) * lineSpacing;
             const startY = barCenterY - (totalHeight / 2);
 
-            // Add text stroke for better contrast, especially on dimmed bars
-            ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-            ctx.lineWidth = 2;
-            ctx.fillStyle = 'white';
+            // Get computed color for axis labels (adapts to light/dark theme)
+            const axisLabelColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#333';
 
-            // Draw status name lines with stroke
+            // Check if bar is dimmed (opacity 0.3)
+            const barColor = displayBackgroundColors[dataIndex];
+            const isDimmed = barColor && barColor.includes('0.3');
+
+            if (isDimmed) {
+              // Use axis label color for dimmed bars (better visibility)
+              ctx.fillStyle = axisLabelColor;
+              ctx.strokeStyle = 'transparent';
+              ctx.lineWidth = 0;
+            } else {
+              // Use white with black stroke for active bars
+              ctx.fillStyle = 'white';
+              ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+              ctx.lineWidth = 2;
+            }
+
+            // Draw status name lines
             ctx.font = `bold ${statusFontSize}px Arial, sans-serif`;
             statusLines.forEach((line, index) => {
               const y = startY + (index * lineSpacing);
-              ctx.strokeText(line, bar.x, y);
+              if (!isDimmed) ctx.strokeText(line, bar.x, y);
               ctx.fillText(line, bar.x, y);
             });
 
-            // Draw count with stroke
+            // Draw count
             ctx.font = `bold ${countFontSize}px Arial, sans-serif`;
             const countY = startY + (statusLines.length * lineSpacing);
-            ctx.strokeText(countText, bar.x, countY);
+            if (!isDimmed) ctx.strokeText(countText, bar.x, countY);
             ctx.fillText(countText, bar.x, countY);
 
-            // Draw percentage with stroke
+            // Draw percentage
             ctx.font = `bold ${percentFontSize}px Arial, sans-serif`;
             const percentY = startY + ((statusLines.length + 1) * lineSpacing);
-            ctx.strokeText(percentText, bar.x, percentY);
+            if (!isDimmed) ctx.strokeText(percentText, bar.x, percentY);
             ctx.fillText(percentText, bar.x, percentY);
           }
 
