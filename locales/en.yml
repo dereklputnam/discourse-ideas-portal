@@ -1,3 +1,31 @@
 en:
   theme_metadata:
     description: "This theme component turns a Discourse category into an ideas portal."
+  js:
+    ideas_portal:
+      status:
+        new: "New"
+        under_review: "Under Review"
+        planned: "Planned"
+        planned_long_term: "Planned Long-term"
+        in_progress: "In Progress"
+        completed: "Completed"
+        not_planned: "Not Planned"
+        already_exists: "Already Exists"
+      chart:
+        title:
+          one: "%{count} Idea"
+          other: "%{count} Ideas"
+        title_filtered:
+          one: "%{count} Idea (%{status})"
+          other: "%{count} Ideas (%{status})"
+        show_all: "✕ Show All"
+        click_to_filter: "Click bars to filter"
+      tooltip:
+        idea_count:
+          one: "%{count} idea"
+          other: "%{count} ideas"
+      empty:
+        no_ideas: "It looks like there are no ideas with this status yet."
+      header:
+        ideas: "Ideas"
