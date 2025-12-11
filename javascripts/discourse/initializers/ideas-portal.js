@@ -514,22 +514,42 @@ export default apiInitializer("0.11.1", (api) => {
           ctx.shadowBlur = 4;
           ctx.shadowOffsetY = 2;
 
-          // Three-line layout: Status name, count, percentage
+          // Three-line layout with adaptive sizing based on bar width and text length
           const statusText = statusName;
           const countText = `${count} idea${count !== 1 ? 's' : ''}`;
           const percentText = `(${percent}%)`;
+          const barWidth = bar.width;
+
+          // Determine font sizes based on bar width and status name length
+          let statusFontSize = 15;
+          let countFontSize = 14;
+          let percentFontSize = 13;
+          let lineSpacing = 16;
+
+          // Measure status text width to see if we need to scale down
+          ctx.font = `bold ${statusFontSize}px sans-serif`;
+          let statusTextWidth = ctx.measureText(statusText).width;
+
+          // If status text is too wide for the bar, scale down proportionally
+          if (statusTextWidth > barWidth - 10) {
+            const scaleFactor = (barWidth - 10) / statusTextWidth;
+            statusFontSize = Math.max(11, Math.floor(statusFontSize * scaleFactor));
+            countFontSize = Math.max(10, Math.floor(countFontSize * scaleFactor));
+            percentFontSize = Math.max(9, Math.floor(percentFontSize * scaleFactor));
+            lineSpacing = Math.max(12, Math.floor(lineSpacing * scaleFactor));
+          }
 
           // Line 1: Status name
-          ctx.font = 'bold 15px sans-serif';
-          ctx.fillText(statusText, bar.x, barCenterY - 16);
+          ctx.font = `bold ${statusFontSize}px sans-serif`;
+          ctx.fillText(statusText, bar.x, barCenterY - lineSpacing);
 
           // Line 2: Count
-          ctx.font = 'bold 14px sans-serif';
+          ctx.font = `bold ${countFontSize}px sans-serif`;
           ctx.fillText(countText, bar.x, barCenterY);
 
           // Line 3: Percentage
-          ctx.font = 'bold 13px sans-serif';
-          ctx.fillText(percentText, bar.x, barCenterY + 16);
+          ctx.font = `bold ${percentFontSize}px sans-serif`;
+          ctx.fillText(percentText, bar.x, barCenterY + lineSpacing);
 
           ctx.restore();
         }
