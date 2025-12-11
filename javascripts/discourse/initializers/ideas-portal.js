@@ -532,6 +532,10 @@ export default apiInitializer("0.11.1", (api) => {
             titleFont: { size: 13 },
             bodyFont: { size: 12 },
             displayColors: false,  // Remove color box from tooltip
+            yAlign: 'bottom',  // Position tooltip above the bar
+            xAlign: 'center',  // Center tooltip horizontally
+            caretSize: 6,  // Size of the tooltip arrow
+            caretPadding: 8,  // Distance from tooltip to element
             callbacks: {
               title: (context) => {
                 // Convert array labels back to string with spaces
