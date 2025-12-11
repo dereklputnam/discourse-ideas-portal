@@ -28,12 +28,36 @@ export default apiInitializer("0.11.1", (api) => {
 
   // Track if the user has interacted with filters
   const FILTER_CLICKED_STORAGE_KEY = 'ideas-portal-filter-clicked';
+  const HOVER_DISMISS_COUNT_KEY = 'ideas-portal-hover-dismiss-count';
   const hasClickedFilter = () => localStorage.getItem(FILTER_CLICKED_STORAGE_KEY) === 'true';
   const markFilterAsClicked = () => localStorage.setItem(FILTER_CLICKED_STORAGE_KEY, 'true');
+
+  // Track hover dismissals
+  const getHoverDismissCount = () => parseInt(localStorage.getItem(HOVER_DISMISS_COUNT_KEY) || '0', 10);
+  const incrementHoverDismissCount = () => {
+    const count = getHoverDismissCount() + 1;
+    localStorage.setItem(HOVER_DISMISS_COUNT_KEY, count.toString());
+    return count;
+  };
+
+  // Determine if tip badge should show based on hover dismiss history
+  const shouldShowTipBadge = () => {
+    if (hasClickedFilter()) return false;
+
+    const dismissCount = getHoverDismissCount();
+    // Show less frequently as dismiss count increases:
+    // 0-2 dismissals: always show
+    // 3-5 dismissals: 50% chance
+    // 6+ dismissals: 25% chance
+    if (dismissCount <= 2) return true;
+    if (dismissCount <= 5) return Math.random() < 0.5;
+    return Math.random() < 0.25;
+  };
 
   // Helper function to reset tip badge (for testing)
   window.resetIdeasTipBadge = () => {
     localStorage.removeItem(FILTER_CLICKED_STORAGE_KEY);
+    localStorage.removeItem(HOVER_DISMISS_COUNT_KEY);
     console.log('Ideas Portal: Tip badge reset. Refresh the page to see it again.');
   };
 
@@ -361,9 +385,9 @@ export default apiInitializer("0.11.1", (api) => {
     statusVisualizationContainer.insertBefore(titleContainer, statusVisualizationContainer.firstChild);
 
     // Show floating tip badge if user hasn't clicked a filter before
-    const shouldShowTipBadge = !isFiltered && !hasClickedFilter();
+    const showBadge = !isFiltered && shouldShowTipBadge();
 
-    if (shouldShowTipBadge) {
+    if (showBadge) {
       const tipBadge = document.createElement('div');
       tipBadge.className = 'ideas-tip-badge';
 
@@ -386,7 +410,7 @@ export default apiInitializer("0.11.1", (api) => {
       let hoverInterval = null;
       let isHovering = false;
 
-      const dismissBadge = () => {
+      const dismissBadge = (incrementCounter = false) => {
         if (tipBadge.parentElement) {
           tipBadge.classList.add('fade-out');
           setTimeout(() => {
@@ -398,6 +422,10 @@ export default apiInitializer("0.11.1", (api) => {
         if (hoverInterval) {
           clearInterval(hoverInterval);
         }
+        // Increment hover dismiss count if dismissed by hovering
+        if (incrementCounter) {
+          incrementHoverDismissCount();
+        }
       };
 
       // Track hover time over the chart
@@ -408,7 +436,7 @@ export default apiInitializer("0.11.1", (api) => {
             hoverTime += 100;
             // Dismiss after 2 seconds (2000ms) of cumulative hover
             if (hoverTime >= 2000) {
-              dismissBadge();
+              dismissBadge(true); // Pass true to increment counter
             }
           }
         }, 100);
