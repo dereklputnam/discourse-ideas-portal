@@ -549,14 +549,14 @@ export default apiInitializer("0.11.1", (api) => {
           const maxTextWidth = Math.max(maxStatusTextWidth, countTextWidth, percentTextWidth);
 
           // Check if text needs to be displayed outside the bar
-          const MIN_FONT_SIZE = 13; // Don't scale below this (increased for better readability)
-          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 80; // Minimum bar width to attempt inside text (significantly increased)
+          const MIN_FONT_SIZE = 11; // Minimum readable font size
+          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 45; // Very narrow bars always use external tooltip
           let renderTextOutside = false;
 
           // Debug logging
           console.log(`Bar: ${statusName}, Width: ${barWidth}px, MaxTextWidth: ${maxTextWidth}px`);
 
-          // If bar is too narrow or text would be too small, render outside
+          // If bar is extremely narrow, always render outside
           if (barWidth < MIN_BAR_WIDTH_FOR_INSIDE_TEXT) {
             renderTextOutside = true;
             console.log(`  → Rendering OUTSIDE (bar too narrow: ${barWidth} < ${MIN_BAR_WIDTH_FOR_INSIDE_TEXT})`);
@@ -564,10 +564,10 @@ export default apiInitializer("0.11.1", (api) => {
             const scaleFactor = (barWidth - 10) / maxTextWidth;
             const potentialFontSize = Math.floor(statusFontSize * scaleFactor);
 
-            // If scaling would make text too small, render outside instead
-            if (potentialFontSize < MIN_FONT_SIZE) {
+            // If scaling would make text too small OR bar is moderately narrow with small font, render outside
+            if (potentialFontSize < MIN_FONT_SIZE || (potentialFontSize < 13 && barWidth < 75)) {
               renderTextOutside = true;
-              console.log(`  → Rendering OUTSIDE (font too small: ${potentialFontSize} < ${MIN_FONT_SIZE})`);
+              console.log(`  → Rendering OUTSIDE (font too small: ${potentialFontSize} < ${MIN_FONT_SIZE} OR cramped: width ${barWidth}px, font ${potentialFontSize}px)`);
               // Keep normal font sizes for outside rendering
             } else {
               // Scale down to fit inside
