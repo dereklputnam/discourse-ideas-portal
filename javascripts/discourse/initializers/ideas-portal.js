@@ -340,26 +340,39 @@ export default apiInitializer("0.11.1", (api) => {
     statusVisualizationContainer.insertBefore(titleContainer, statusVisualizationContainer.firstChild);
 
     // Show floating tip badge on first load (only if not filtered)
-    if (!isFiltered && !hasSeenTipBadge()) {
+    const shouldShowTipBadge = !isFiltered && !hasSeenTipBadge();
+    console.log('Ideas Portal: Tip badge check', {
+      isFiltered,
+      hasSeenTipBadge: hasSeenTipBadge(),
+      shouldShowTipBadge,
+      storageValue: localStorage.getItem(TIP_BADGE_STORAGE_KEY)
+    });
+
+    if (shouldShowTipBadge) {
+      console.log('Ideas Portal: Creating tip badge');
       const tipBadge = document.createElement('div');
       tipBadge.className = 'ideas-tip-badge';
-      tipBadge.innerHTML = '🔎 Tip: Click bars to filter';
+      tipBadge.innerHTML = '🔍 Tip: Click bars to filter';
 
       // Position relative to chart container
       const chartContainerEl = canvas.parentElement;
       chartContainerEl.style.position = 'relative';
       chartContainerEl.appendChild(tipBadge);
+      console.log('Ideas Portal: Tip badge appended to DOM');
 
       // Fade out after 3 seconds
       setTimeout(() => {
+        console.log('Ideas Portal: Fading out tip badge');
         tipBadge.classList.add('fade-out');
         setTimeout(() => {
           tipBadge.remove();
+          console.log('Ideas Portal: Tip badge removed');
         }, 500); // Wait for fade animation to complete
       }, 3000);
 
       // Mark as seen when user interacts with chart
       const markAsSeen = () => {
+        console.log('Ideas Portal: User clicked chart, marking tip as seen');
         markTipBadgeAsSeen();
         tipBadge.classList.add('fade-out');
         setTimeout(() => {
@@ -369,6 +382,8 @@ export default apiInitializer("0.11.1", (api) => {
 
       // Listen for click on canvas
       canvas.addEventListener('click', markAsSeen, { once: true });
+    } else {
+      console.log('Ideas Portal: Tip badge not shown');
     }
 
     // Apply dimming to background colors if we're on a filtered page
