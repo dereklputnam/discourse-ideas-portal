@@ -344,6 +344,10 @@ body.ideas-voting-category .list-container {
       display: flex;
     }
 
+    .link-bottom-line .badge-category__wrapper {
+      display: none;
+    }
+
     .title.raw-link.raw-topic-link {
       display: block;
       padding: 0;
