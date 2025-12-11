@@ -173,13 +173,13 @@ export default apiInitializer("0.11.1", (api) => {
 
     // Ensure all statuses are included, even with a count of 0
     Object.keys(tagMap).forEach(status => {
-      // Split long labels into multiple lines for better display
+      // Split multi-word labels into multiple lines for better display
       const labelText = tagMap[status];
       const words = labelText.split(' ');
       let label;
 
-      // If label is longer than 10 characters and has spaces, split into array for multi-line
-      if (labelText.length > 10 && words.length > 1) {
+      // If label has multiple words, split into array for multi-line display
+      if (words.length > 1) {
         label = words;  // Chart.js will render array as multi-line
       } else {
         label = labelText;
