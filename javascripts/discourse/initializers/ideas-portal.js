@@ -31,6 +31,12 @@ export default apiInitializer("0.11.1", (api) => {
   const hasSeenTipBadge = () => localStorage.getItem(TIP_BADGE_STORAGE_KEY) === 'true';
   const markTipBadgeAsSeen = () => localStorage.setItem(TIP_BADGE_STORAGE_KEY, 'true');
 
+  // Helper function to reset tip badge (for testing)
+  window.resetIdeasTipBadge = () => {
+    localStorage.removeItem(TIP_BADGE_STORAGE_KEY);
+    console.log('Ideas Portal: Tip badge reset. Refresh the page to see it again.');
+  };
+
   
   const fetchAllTopicsInCategory = async (categoryId) => {
     const pageSize = 100;
