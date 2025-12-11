@@ -514,13 +514,29 @@ export default apiInitializer("0.11.1", (api) => {
           ctx.shadowBlur = 4;
           ctx.shadowOffsetY = 2;
 
-          // Draw status name
-          ctx.font = 'bold 16px sans-serif';
-          ctx.fillText(statusName, bar.x, barCenterY - 12);
+          // Measure bar width to determine layout
+          const barWidth = bar.width;
+          const statusText = statusName;
+          const countText = `${count} idea${count !== 1 ? 's' : ''} (${percent}%)`;
 
-          // Draw count and percentage
+          // Test if combined text fits in one line
           ctx.font = 'bold 14px sans-serif';
-          ctx.fillText(`${count} ideas (${percent}%)`, bar.x, barCenterY + 12);
+          const combinedText = `${statusText}: ${countText}`;
+          const combinedWidth = ctx.measureText(combinedText).width;
+
+          // If bar is wide enough, show on one line; otherwise split into two
+          if (barWidth > combinedWidth + 20) {
+            // Single line layout
+            ctx.font = 'bold 14px sans-serif';
+            ctx.fillText(combinedText, bar.x, barCenterY);
+          } else {
+            // Two line layout
+            ctx.font = 'bold 15px sans-serif';
+            ctx.fillText(statusText, bar.x, barCenterY - 11);
+
+            ctx.font = 'bold 13px sans-serif';
+            ctx.fillText(countText, bar.x, barCenterY + 11);
+          }
 
           ctx.restore();
         }
