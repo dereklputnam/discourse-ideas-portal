@@ -529,7 +529,7 @@ export default apiInitializer("0.11.1", (api) => {
           let lineSpacing = 13;
 
           // Measure the longest status line width to see if we need to scale down
-          ctx.font = `bold ${statusFontSize}px sans-serif`;
+          ctx.font = `bold ${statusFontSize}px "Hubot Sans", sans-serif`;
           let maxStatusTextWidth = Math.max(...statusLines.map(line => ctx.measureText(line).width));
 
           // If status text is too wide for the bar, scale down proportionally
@@ -546,18 +546,18 @@ export default apiInitializer("0.11.1", (api) => {
           const totalHeight = (totalLines - 1) * lineSpacing;
           const startY = barCenterY - (totalHeight / 2);
 
-          // Draw status name lines
-          ctx.font = `bold ${statusFontSize}px sans-serif`;
+          // Draw status name lines (Hubot Sans)
+          ctx.font = `bold ${statusFontSize}px "Hubot Sans", sans-serif`;
           statusLines.forEach((line, index) => {
             ctx.fillText(line, bar.x, startY + (index * lineSpacing));
           });
 
-          // Draw count
-          ctx.font = `bold ${countFontSize}px sans-serif`;
+          // Draw count (Syne)
+          ctx.font = `bold ${countFontSize}px "Syne", sans-serif`;
           ctx.fillText(countText, bar.x, startY + (statusLines.length * lineSpacing));
 
-          // Draw percentage
-          ctx.font = `bold ${percentFontSize}px sans-serif`;
+          // Draw percentage (Syne)
+          ctx.font = `bold ${percentFontSize}px "Syne", sans-serif`;
           ctx.fillText(percentText, bar.x, startY + ((statusLines.length + 1) * lineSpacing));
 
           ctx.restore();
