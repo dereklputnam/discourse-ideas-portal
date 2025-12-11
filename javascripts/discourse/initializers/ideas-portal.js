@@ -551,15 +551,23 @@ export default apiInitializer("0.11.1", (api) => {
           // Check if text needs to be displayed outside the bar
           const MIN_FONT_SIZE = 11; // Minimum readable font size
           const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 55; // Narrow bars always use external tooltip
+          const MIN_BAR_HEIGHT_FOR_INSIDE_TEXT = 50; // Minimum height to fit text vertically
           let renderTextOutside = false;
 
-          // Debug logging
-          console.log(`Bar: ${statusName}, Width: ${barWidth}px, MaxTextWidth: ${maxTextWidth}px`);
+          // Calculate required height for text
+          const totalLines = statusLines.length + 2; // status lines + count + percentage
+          const requiredHeight = (totalLines - 1) * lineSpacing + (statusFontSize * 2); // Approximate height needed
 
-          // If bar is narrow, always render outside
+          // Debug logging
+          console.log(`Bar: ${statusName}, Width: ${barWidth}px, Height: ${barHeight}px, MaxTextWidth: ${maxTextWidth}px, RequiredHeight: ${requiredHeight}px`);
+
+          // If bar is narrow or too short, always render outside
           if (barWidth < MIN_BAR_WIDTH_FOR_INSIDE_TEXT) {
             renderTextOutside = true;
             console.log(`  → Rendering OUTSIDE (bar too narrow: ${barWidth} < ${MIN_BAR_WIDTH_FOR_INSIDE_TEXT})`);
+          } else if (barHeight < MIN_BAR_HEIGHT_FOR_INSIDE_TEXT || barHeight < requiredHeight) {
+            renderTextOutside = true;
+            console.log(`  → Rendering OUTSIDE (bar too short: ${barHeight}px < ${Math.max(MIN_BAR_HEIGHT_FOR_INSIDE_TEXT, requiredHeight)}px required)`);
           } else if (maxTextWidth > barWidth - 10) {
             const scaleFactor = (barWidth - 10) / maxTextWidth;
             const potentialFontSize = Math.floor(statusFontSize * scaleFactor);
