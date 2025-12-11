@@ -47,8 +47,15 @@ export function getCurrentTag(api) {
     currentTag = tagCtrl.tag;
   } else {
     // Fallback: extract tag from URL
-    const m = window.location.pathname.match(/\/tag\/([^\/]+)/);
-    currentTag = m?.[1];
+    // Handle both /tag/tagname and /tags/intersection/tagname/othertag patterns
+    const intersectionMatch = window.location.pathname.match(/\/tags\/intersection\/([^\/]+)/);
+    const tagMatch = window.location.pathname.match(/\/tag\/([^\/]+)/);
+
+    if (intersectionMatch) {
+      currentTag = intersectionMatch[1];
+    } else if (tagMatch) {
+      currentTag = tagMatch[1];
+    }
   }
   return tags.includes(currentTag) ? currentTag : null;
 }
