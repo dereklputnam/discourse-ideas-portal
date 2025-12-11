@@ -1,9 +1,9 @@
 {
     "name": "Product Ideas Portal",
-    "theme_version": "0.1",
+    "theme_version": "2.0",
     "component": true,
-    "about_url": "https://github.com/jtviolet/discourse-ideas-portal",
-    "license_url": "https://github.com/jtviolet/discourse-ideas-portal/blob/main/LICENSE",
-    "authors": "Jordan Violet",
+    "about_url": "https://github.com/dereklputnam/discourse-ideas-portal",
+    "license_url": "https://github.com/dereklputnam/discourse-ideas-portal/blob/main/LICENSE",
+    "authors": "Derek Putnam",
     "license": "MIT"
   }
