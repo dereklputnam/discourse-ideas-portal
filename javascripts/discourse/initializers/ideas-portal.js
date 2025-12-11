@@ -351,17 +351,7 @@ export default apiInitializer("0.11.1", (api) => {
     if (shouldShowTipBadge) {
       const tipBadge = document.createElement('div');
       tipBadge.className = 'ideas-tip-badge';
-
-      // Create icon using Discourse's icon helper
-      const iconSpan = document.createElement('span');
-      iconSpan.className = 'svg-icon';
-      iconSpan.innerHTML = '<svg class="fa d-icon d-icon-search svg-icon svg-string" xmlns="http://www.w3.org/2000/svg"><use href="#search"></use></svg>';
-
-      const textSpan = document.createElement('span');
-      textSpan.textContent = 'Click bars to filter';
-
-      tipBadge.appendChild(iconSpan);
-      tipBadge.appendChild(textSpan);
+      tipBadge.textContent = '⌕ Click bars to filter';
 
       // Position relative to chart container
       const chartContainerEl = canvas.parentElement;
