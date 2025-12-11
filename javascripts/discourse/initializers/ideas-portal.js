@@ -26,14 +26,14 @@ export default apiInitializer("0.11.1", (api) => {
     'already-exists': 'Already Exists',
   };
 
-  // Track if the user has seen the tip badge
-  const TIP_BADGE_STORAGE_KEY = 'ideas-portal-tip-badge-seen';
-  const hasSeenTipBadge = () => localStorage.getItem(TIP_BADGE_STORAGE_KEY) === 'true';
-  const markTipBadgeAsSeen = () => localStorage.setItem(TIP_BADGE_STORAGE_KEY, 'true');
+  // Track if the user has interacted with filters
+  const FILTER_CLICKED_STORAGE_KEY = 'ideas-portal-filter-clicked';
+  const hasClickedFilter = () => localStorage.getItem(FILTER_CLICKED_STORAGE_KEY) === 'true';
+  const markFilterAsClicked = () => localStorage.setItem(FILTER_CLICKED_STORAGE_KEY, 'true');
 
   // Helper function to reset tip badge (for testing)
   window.resetIdeasTipBadge = () => {
-    localStorage.removeItem(TIP_BADGE_STORAGE_KEY);
+    localStorage.removeItem(FILTER_CLICKED_STORAGE_KEY);
     console.log('Ideas Portal: Tip badge reset. Refresh the page to see it again.');
   };
 
@@ -345,38 +345,74 @@ export default apiInitializer("0.11.1", (api) => {
     const statusVisualizationContainer = canvas.parentElement.parentElement;
     statusVisualizationContainer.insertBefore(titleContainer, statusVisualizationContainer.firstChild);
 
-    // Show floating tip badge on every page load (only if not filtered)
-    // Temporarily disabled localStorage check for fine-tuning
-    const shouldShowTipBadge = !isFiltered;
+    // Show floating tip badge if user hasn't clicked a filter before
+    const shouldShowTipBadge = !isFiltered && !hasClickedFilter();
 
     if (shouldShowTipBadge) {
       const tipBadge = document.createElement('div');
       tipBadge.className = 'ideas-tip-badge';
-      tipBadge.innerHTML = '⏷ Click bars to filter';
+      tipBadge.innerHTML = '🔎 Click bars to filter';
 
       // Position relative to chart container
       const chartContainerEl = canvas.parentElement;
       chartContainerEl.style.position = 'relative';
       chartContainerEl.appendChild(tipBadge);
 
-      // Fade out after 3 seconds
-      setTimeout(() => {
-        tipBadge.classList.add('fade-out');
-        setTimeout(() => {
-          tipBadge.remove();
-        }, 500); // Wait for fade animation to complete
-      }, 3000);
+      // Track cumulative hover time on chart bars
+      let hoverTime = 0;
+      let hoverInterval = null;
+      let isHovering = false;
 
-      // Dismiss on chart click
       const dismissBadge = () => {
-        tipBadge.classList.add('fade-out');
-        setTimeout(() => {
-          tipBadge.remove();
-        }, 500);
+        if (tipBadge.parentElement) {
+          tipBadge.classList.add('fade-out');
+          setTimeout(() => {
+            if (tipBadge.parentElement) {
+              tipBadge.remove();
+            }
+          }, 500);
+        }
+        if (hoverInterval) {
+          clearInterval(hoverInterval);
+        }
       };
 
-      // Listen for click on canvas
-      canvas.addEventListener('click', dismissBadge, { once: true });
+      // Track hover time over the chart
+      canvas.addEventListener('mouseenter', () => {
+        isHovering = true;
+        hoverInterval = setInterval(() => {
+          if (isHovering) {
+            hoverTime += 100;
+            // Dismiss after 2 seconds (2000ms) of cumulative hover
+            if (hoverTime >= 2000) {
+              dismissBadge();
+            }
+          }
+        }, 100);
+      });
+
+      canvas.addEventListener('mouseleave', () => {
+        isHovering = false;
+        if (hoverInterval) {
+          clearInterval(hoverInterval);
+          hoverInterval = null;
+        }
+      });
+
+      // Mark as clicked and dismiss when user clicks on a bar
+      canvas.addEventListener('click', (event) => {
+        const elements = window.ideasStatusChart.getElementsAtEventForMode(
+          event,
+          'nearest',
+          { intersect: true },
+          false
+        );
+
+        if (elements.length > 0) {
+          markFilterAsClicked();
+          dismissBadge();
+        }
+      }, { once: true });
     }
 
     // Apply dimming to background colors if we're on a filtered page
