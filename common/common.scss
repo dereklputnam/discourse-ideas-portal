@@ -99,13 +99,40 @@
 }
 END SAVED */
 
-/* Inline help text styling - replaces help button */
+/* SAVED: Inline help text styling (previous implementation)
 .ideas-portal-category .ideas-help-text {
   font-size: 0.875rem;
   color: var(--primary-medium);
   font-weight: normal;
   font-style: italic;
   margin-left: 8px;
+}
+END SAVED */
+
+/* Floating tip badge - appears on first load */
+.ideas-portal-category .ideas-tip-badge {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--tertiary);
+  color: var(--secondary);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.5s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ideas-portal-category .ideas-tip-badge.fade-out {
+  opacity: 0;
 }
 
 /* Small Show All button styling - matching Discourse primary button treatment */

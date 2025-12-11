@@ -26,6 +26,11 @@ export default apiInitializer("0.11.1", (api) => {
     'already-exists': 'Already Exists',
   };
 
+  // Track if the user has seen the tip badge
+  const TIP_BADGE_STORAGE_KEY = 'ideas-portal-tip-badge-seen';
+  const hasSeenTipBadge = () => localStorage.getItem(TIP_BADGE_STORAGE_KEY) === 'true';
+  const markTipBadgeAsSeen = () => localStorage.setItem(TIP_BADGE_STORAGE_KEY, 'true');
+
   
   const fetchAllTopicsInCategory = async (categoryId) => {
     const pageSize = 100;
@@ -241,13 +246,9 @@ export default apiInitializer("0.11.1", (api) => {
         titleElement.textContent = title;
       }
 
-      // Update action area to show help text
+      // Clear action area when not filtered
       if (actionArea) {
         actionArea.innerHTML = '';
-        const helpText = document.createElement('span');
-        helpText.className = 'ideas-help-text';
-        helpText.textContent = 'Click bars to filter';
-        actionArea.appendChild(helpText);
       }
 
       // Reset all bars to full opacity
@@ -329,18 +330,46 @@ export default apiInitializer("0.11.1", (api) => {
       }
 
       actionArea.appendChild(showAllButton);
-    } else {
-      const helpText = document.createElement('span');
-      helpText.className = 'ideas-help-text';
-      helpText.textContent = 'Click bars to filter';
-      actionArea.appendChild(helpText);
     }
+    // Don't show anything in action area when not filtered - tip badge will handle it
 
     titleContainer.appendChild(actionArea);
 
     // Insert title at the beginning of the status visualization container
     const statusVisualizationContainer = canvas.parentElement.parentElement;
     statusVisualizationContainer.insertBefore(titleContainer, statusVisualizationContainer.firstChild);
+
+    // Show floating tip badge on first load (only if not filtered)
+    if (!isFiltered && !hasSeenTipBadge()) {
+      const tipBadge = document.createElement('div');
+      tipBadge.className = 'ideas-tip-badge';
+      tipBadge.innerHTML = '🔎 Tip: Click bars to filter';
+
+      // Position relative to chart container
+      const chartContainerEl = canvas.parentElement;
+      chartContainerEl.style.position = 'relative';
+      chartContainerEl.appendChild(tipBadge);
+
+      // Fade out after 3 seconds
+      setTimeout(() => {
+        tipBadge.classList.add('fade-out');
+        setTimeout(() => {
+          tipBadge.remove();
+        }, 500); // Wait for fade animation to complete
+      }, 3000);
+
+      // Mark as seen when user interacts with chart
+      const markAsSeen = () => {
+        markTipBadgeAsSeen();
+        tipBadge.classList.add('fade-out');
+        setTimeout(() => {
+          tipBadge.remove();
+        }, 500);
+      };
+
+      // Listen for click on canvas
+      canvas.addEventListener('click', markAsSeen, { once: true });
+    }
 
     // Apply dimming to background colors if we're on a filtered page
     let displayBackgroundColors = backgroundColors;
