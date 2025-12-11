@@ -16,14 +16,14 @@ export default apiInitializer("0.11.1", (api) => {
   let currentCategoryId = null;
 
   const tagMap = {
-    'new': 'New',
-    'under-review': 'Under Review',
-    'planned': 'Planned',
-    'planned-long-term': 'Planned Long-term',
-    'in-progress': 'In Progress',
-    'completed': 'Completed',
-    'not-planned': 'Not Planned',
-    'already-exists': 'Already Exists',
+    'new': () => I18n.t('ideas_portal.status.new'),
+    'under-review': () => I18n.t('ideas_portal.status.under_review'),
+    'planned': () => I18n.t('ideas_portal.status.planned'),
+    'planned-long-term': () => I18n.t('ideas_portal.status.planned_long_term'),
+    'in-progress': () => I18n.t('ideas_portal.status.in_progress'),
+    'completed': () => I18n.t('ideas_portal.status.completed'),
+    'not-planned': () => I18n.t('ideas_portal.status.not_planned'),
+    'already-exists': () => I18n.t('ideas_portal.status.already_exists'),
   };
 
   // Track if the user has interacted with filters
@@ -139,7 +139,7 @@ export default apiInitializer("0.11.1", (api) => {
       const noIdeasMessage = document.createElement('div');
       noIdeasMessage.className = 'no-ideas-message';
       noIdeasMessage.innerHTML = `
-        <p>It looks like there are no ideas with this status yet.</p>
+        <p>${I18n.t('ideas_portal.empty.no_ideas')}</p>
         <p>Be the first to submit an idea!</p>
       `;
       noIdeasMessage.style.textAlign = 'center';
@@ -174,7 +174,7 @@ export default apiInitializer("0.11.1", (api) => {
     // Ensure all statuses are included, even with a count of 0
     Object.keys(tagMap).forEach(status => {
       // Split long labels into multiple lines for better display
-      const labelText = tagMap[status];
+      const labelText = tagMap[status]();  // Call function to get translated text
       const words = labelText.split(' ');
       let label;
 
@@ -227,8 +227,8 @@ export default apiInitializer("0.11.1", (api) => {
 
     if (filterTag && statusCounts[filterTag] !== undefined) {
       count = statusCounts[filterTag];
-      const statusName = tagMap[filterTag];
-      title = `${count} ${count === 1 ? 'Idea' : 'Ideas'} (${statusName})`;
+      const statusName = tagMap[filterTag]();  // Call function to get translated text
+      title = I18n.t('ideas_portal.chart.title_filtered', { count: count, status: statusName });
 
       // Update the title element
       if (titleElement) {
@@ -240,7 +240,7 @@ export default apiInitializer("0.11.1", (api) => {
         actionArea.innerHTML = '';
         const showAllButton = document.createElement('a');
         showAllButton.className = 'ideas-show-all-button-small';
-        showAllButton.textContent = '✕ Show All';
+        showAllButton.textContent = I18n.t('ideas_portal.chart.show_all');
 
         // Build the "show all" URL
         if (categoryInfo.isCategory) {
@@ -278,7 +278,7 @@ export default apiInitializer("0.11.1", (api) => {
       };
     } else {
       count = Object.values(statusCounts).reduce((sum, c) => sum + c, 0);
-      title = `${count} ${count === 1 ? 'Idea' : 'Ideas'}`;
+      title = I18n.t('ideas_portal.chart.title', { count: count });
 
       // Update the title element
       if (titleElement) {
@@ -329,13 +329,13 @@ export default apiInitializer("0.11.1", (api) => {
       // If we found a filter tag and it exists in our statusCounts, use filtered title
       if (filterTag && statusCounts[filterTag] !== undefined) {
         const count = statusCounts[filterTag];
-        const statusName = tagMap[filterTag];
-        chartTitle = `${count} ${count === 1 ? 'Idea' : 'Ideas'} (${statusName})`;
+        const statusName = tagMap[filterTag]();  // Call function to get translated text
+        chartTitle = I18n.t('ideas_portal.chart.title_filtered', { count: count, status: statusName });
       } else {
-        chartTitle = `${total} ${total === 1 ? 'Idea' : 'Ideas'}`;
+        chartTitle = I18n.t('ideas_portal.chart.title', { count: total });
       }
     } else {
-      chartTitle = `${total} ${total === 1 ? 'Idea' : 'Ideas'}`;
+      chartTitle = I18n.t('ideas_portal.chart.title', { count: total });
     }
 
     // Using scriptable options for dynamic theme colors; no returnPrimaryColor helper needed
@@ -364,7 +364,7 @@ export default apiInitializer("0.11.1", (api) => {
     if (isFiltered && categoryInfo) {
       const showAllButton = document.createElement('a');
       showAllButton.className = 'ideas-show-all-button-small';
-      showAllButton.textContent = '✕ Show All';
+      showAllButton.textContent = I18n.t('ideas_portal.chart.show_all');
 
       // Build the "show all" URL
       if (categoryInfo.isCategory) {
@@ -398,7 +398,7 @@ export default apiInitializer("0.11.1", (api) => {
 
       // Add text after icon
       tipBadge.appendChild(iconSpan);
-      tipBadge.appendChild(document.createTextNode(' Click bars to filter'));
+      tipBadge.appendChild(document.createTextNode(' ' + I18n.t('ideas_portal.chart.click_to_filter')));
 
       // Position relative to chart container
       const chartContainerEl = canvas.parentElement;
@@ -492,7 +492,7 @@ export default apiInitializer("0.11.1", (api) => {
           const dataPoint = tooltip.dataPoints[0];
           const { dataIndex } = dataPoint;
           const statusKey = Object.keys(tagMap)[dataIndex];
-          const statusName = tagMap[statusKey];
+          const statusName = tagMap[statusKey]();  // Call function to get translated text
           const count = dataPoint.raw;
           const percent = Math.round((count / data.reduce((a, b) => a + b, 0)) * 100);
 
@@ -515,7 +515,7 @@ export default apiInitializer("0.11.1", (api) => {
           ctx.shadowOffsetY = 2;
 
           // Multi-line layout with adaptive sizing based on bar width and text length
-          const countText = `${count} idea${count !== 1 ? 's' : ''}`;
+          const countText = I18n.t('ideas_portal.tooltip.idea_count', { count: count });
           const percentText = `(${percent}%)`;
           const barWidth = bar.width;
 
@@ -724,7 +724,7 @@ export default apiInitializer("0.11.1", (api) => {
       // Replace "Topic" with "Ideas" in the topic list header
       const headerElement = document.querySelector('table.topic-list th.topic-list-data.default span');
       if (headerElement) {
-        headerElement.textContent = "Ideas";
+        headerElement.textContent = I18n.t('ideas_portal.header.ideas');
       }
     });
 
