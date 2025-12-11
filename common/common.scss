@@ -120,7 +120,7 @@ END SAVED */
   padding: .5em .65em;
   border: 1px solid var(--primary);
   border-radius: var(--d-button-border-radius);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 400;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1000;
@@ -129,9 +129,16 @@ END SAVED */
   transition: opacity 0.5s ease;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 0;
   white-space: nowrap;
   line-height: normal;
+
+  .ideas-tip-icon {
+    font-size: 22px;
+    display: inline-flex;
+    align-items: center;
+    transform: scaleX(-1);
+  }
 
   .svg-icon {
     width: 14px;
