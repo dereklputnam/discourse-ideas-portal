@@ -352,7 +352,7 @@ export default apiInitializer("0.11.1", (api) => {
     if (shouldShowTipBadge) {
       const tipBadge = document.createElement('div');
       tipBadge.className = 'ideas-tip-badge';
-      tipBadge.innerHTML = '🔽 Tip: Click bars to filter';
+      tipBadge.innerHTML = '⏷ Click bars to filter';
 
       // Position relative to chart container
       const chartContainerEl = canvas.parentElement;
