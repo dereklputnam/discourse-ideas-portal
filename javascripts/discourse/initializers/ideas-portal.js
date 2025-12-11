@@ -538,6 +538,8 @@ export default apiInitializer("0.11.1", (api) => {
           borderWidth: 1,
           borderRadius: 0,
           borderSkipped: false,
+          barPercentage: 0.7,        // Reduce bar width to 70% of category width
+          categoryPercentage: 0.85   // Reduce category width to 85% of available space
         }]
       },
       plugins: [barTooltipPlugin],
