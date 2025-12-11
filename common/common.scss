@@ -325,6 +325,15 @@ body:not(.tag-ideas) .ideas-portal-category .category-breadcrumb li:last-child {
 
 body.ideas-voting-category .list-container {
   .topic-list-item {
+    .link-bottom-line + .topic-excerpt {
+      margin-left: 65px;
+      font-size: var(--font-down-2);
+
+      .topic-excerpt-more {
+        font-weight: bold;
+      }
+    }
+
     td.main-link {
       display: flex;
       flex-direction: column;
@@ -333,6 +342,28 @@ body.ideas-voting-category .list-container {
 
     .link-top-line {
       display: flex;
+    }
+
+    .title.raw-link.raw-topic-link {
+      display: block;
+      padding: 0;
+      margin-left: 65px;
+    }
+
+    .discourse-tags {
+      margin-left: 65px;
+
+      .discourse-tag {
+        margin: 0.35em 0.5em 0 0;
+
+        &::after {
+          display: none;
+        }
+      }
+
+      .list-vote-count {
+        display: none;
+      }
     }
 
     .ideas-vote-count-before-title {
@@ -395,6 +426,14 @@ body.ideas-voting-category .list-container {
         font-weight: 600;
         color: var(--primary);
         margin-top: -5px;
+      }
+    }
+
+    .topic-statuses {
+      margin-left: 65px;
+
+      & + .title.raw-link.raw-topic-link {
+        margin: 0;
       }
     }
   }
