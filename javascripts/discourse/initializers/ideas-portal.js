@@ -351,18 +351,7 @@ export default apiInitializer("0.11.1", (api) => {
     if (shouldShowTipBadge) {
       const tipBadge = document.createElement('div');
       tipBadge.className = 'ideas-tip-badge';
-
-      // Create icon span with larger size
-      const iconSpan = document.createElement('span');
-      iconSpan.className = 'ideas-tip-icon';
-      iconSpan.textContent = '⌕';
-
-      // Create text span
-      const textSpan = document.createElement('span');
-      textSpan.textContent = 'Click bars to filter';
-
-      tipBadge.appendChild(iconSpan);
-      tipBadge.appendChild(textSpan);
+      tipBadge.textContent = '⌕ Click bars to filter';
 
       // Position relative to chart container
       const chartContainerEl = canvas.parentElement;
