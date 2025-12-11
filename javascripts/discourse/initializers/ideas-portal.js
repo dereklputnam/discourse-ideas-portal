@@ -243,6 +243,15 @@ export default apiInitializer("0.11.1", (api) => {
           return color.replace('1)', '0.3)');
         }
       });
+
+      // Update x-axis labels to bold the filtered label
+      chart.options.scales.x.ticks.font = (ctx) => {
+        const isActiveLabel = ctx.index === filterIndex;
+        return {
+          size: 16,
+          weight: isActiveLabel ? 'bold' : 'normal'
+        };
+      };
     } else {
       count = Object.values(statusCounts).reduce((sum, c) => sum + c, 0);
       title = `${count} ${count === 1 ? 'Idea' : 'Ideas'}`;
@@ -262,6 +271,12 @@ export default apiInitializer("0.11.1", (api) => {
       chart.data.datasets[0].backgroundColor = chart.data.datasets[0].backgroundColor.map((color) => {
         return color.replace(/[\d.]+\)$/, '1)');
       });
+
+      // Reset x-axis labels to normal weight
+      chart.options.scales.x.ticks.font = {
+        size: 16,
+        weight: 'normal'
+      };
     }
 
     window.ideasStatusChart.update();
@@ -509,8 +524,15 @@ export default apiInitializer("0.11.1", (api) => {
           },
           ticks: {
             color: (ctx) => getComputedStyle(ctx.chart.canvas).getPropertyValue("--primary").trim(),
-              font: {
-                size: 16
+              font: (ctx) => {
+                const allStatuses = Object.keys(tagMap);
+                const filterIndex = filterTag ? allStatuses.indexOf(filterTag) : -1;
+                const isActiveLabel = filterIndex !== -1 && ctx.index === filterIndex;
+
+                return {
+                  size: 16,
+                  weight: isActiveLabel ? 'bold' : 'normal'
+                };
               }
             }
           },
