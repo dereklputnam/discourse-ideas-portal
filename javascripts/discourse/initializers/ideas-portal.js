@@ -514,42 +514,51 @@ export default apiInitializer("0.11.1", (api) => {
           ctx.shadowBlur = 4;
           ctx.shadowOffsetY = 2;
 
-          // Three-line layout with adaptive sizing based on bar width and text length
-          const statusText = statusName;
+          // Multi-line layout with adaptive sizing based on bar width and text length
           const countText = `${count} idea${count !== 1 ? 's' : ''}`;
           const percentText = `(${percent}%)`;
           const barWidth = bar.width;
+
+          // Split status name into lines for multi-word statuses
+          const statusLines = statusName.includes(' ') ? statusName.split(' ') : [statusName];
 
           // Determine font sizes based on bar width and status name length
           let statusFontSize = 15;
           let countFontSize = 14;
           let percentFontSize = 13;
-          let lineSpacing = 16;
+          let lineSpacing = 13;
 
-          // Measure status text width to see if we need to scale down
+          // Measure the longest status line width to see if we need to scale down
           ctx.font = `bold ${statusFontSize}px sans-serif`;
-          let statusTextWidth = ctx.measureText(statusText).width;
+          let maxStatusTextWidth = Math.max(...statusLines.map(line => ctx.measureText(line).width));
 
           // If status text is too wide for the bar, scale down proportionally
-          if (statusTextWidth > barWidth - 10) {
-            const scaleFactor = (barWidth - 10) / statusTextWidth;
+          if (maxStatusTextWidth > barWidth - 10) {
+            const scaleFactor = (barWidth - 10) / maxStatusTextWidth;
             statusFontSize = Math.max(11, Math.floor(statusFontSize * scaleFactor));
             countFontSize = Math.max(10, Math.floor(countFontSize * scaleFactor));
             percentFontSize = Math.max(9, Math.floor(percentFontSize * scaleFactor));
-            lineSpacing = Math.max(12, Math.floor(lineSpacing * scaleFactor));
+            lineSpacing = Math.max(11, Math.floor(lineSpacing * scaleFactor));
           }
 
-          // Line 1: Status name
+          // Calculate total height needed for all lines
+          const totalLines = statusLines.length + 2; // status lines + count + percent
+          const totalHeight = (totalLines - 1) * lineSpacing;
+          const startY = barCenterY - (totalHeight / 2);
+
+          // Draw status name lines
           ctx.font = `bold ${statusFontSize}px sans-serif`;
-          ctx.fillText(statusText, bar.x, barCenterY - lineSpacing);
+          statusLines.forEach((line, index) => {
+            ctx.fillText(line, bar.x, startY + (index * lineSpacing));
+          });
 
-          // Line 2: Count
+          // Draw count
           ctx.font = `bold ${countFontSize}px sans-serif`;
-          ctx.fillText(countText, bar.x, barCenterY);
+          ctx.fillText(countText, bar.x, startY + (statusLines.length * lineSpacing));
 
-          // Line 3: Percentage
+          // Draw percentage
           ctx.font = `bold ${percentFontSize}px sans-serif`;
-          ctx.fillText(percentText, bar.x, barCenterY + lineSpacing);
+          ctx.fillText(percentText, bar.x, startY + ((statusLines.length + 1) * lineSpacing));
 
           ctx.restore();
         }
