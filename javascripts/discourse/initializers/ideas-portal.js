@@ -531,7 +531,13 @@ export default apiInitializer("0.11.1", (api) => {
             backgroundColor: 'rgba(0,0,0,0.8)',
             titleFont: { size: 13 },
             bodyFont: { size: 12 },
+            displayColors: false,  // Remove color box from tooltip
             callbacks: {
+              title: (context) => {
+                // Convert array labels back to string with spaces
+                const label = context[0].label;
+                return Array.isArray(label) ? label.join(' ') : label;
+              },
               label: (context) => {
                 const count = context.raw;
                 const percent = Math.round((count / data.reduce((a, b) => a + b, 0)) * 100);
