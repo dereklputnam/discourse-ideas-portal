@@ -2,19 +2,12 @@
 
 import { apiInitializer } from "discourse/lib/api";
 import {
-  parseCategories,
-  parseTags,
   getCurrentCategory,
   getCurrentTag,
   shouldEnable
 } from "../lib/ideas-portal-utils";
 
 export default apiInitializer("0.11.1", (api) => {
-  const enabledCategories = parseCategories();
-  const enabledTags = parseTags();
-
-  let currentCategoryId = null;
-
   const tagMap = {
     'new': 'New',
     'under-review': 'Under Review',
@@ -500,7 +493,7 @@ export default apiInitializer("0.11.1", (api) => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        onClick: (event, elements) => {
+        onClick: (_event, elements) => {
           if (elements.length > 0) {
             const index = elements[0].index;
             const statusKey = Object.keys(tagMap)[index];
@@ -612,7 +605,6 @@ export default apiInitializer("0.11.1", (api) => {
 
     if (!shouldEnablePortal) {
       document.body.classList.remove("ideas-portal-category");
-      currentCategoryId = null;
       if (existingFilters) existingFilters.remove();
       if (window.ideasStatusChart) {
         window.ideasStatusChart.destroy();
@@ -658,26 +650,10 @@ export default apiInitializer("0.11.1", (api) => {
       existingFilters.remove();
     }
     
-    // Only set currentCategoryId if we're on a category page
-    if (currentCategory) {
-      currentCategoryId = currentCategory.id;
-    }
-    
     document.body.classList.add("ideas-portal-category");
 
-        // Reorder status tags first in the topic list
-        const statusTags = [
-          "new",
-          "under-review",
-          "planned",
-          "planned-long-term",
-          "in-progress",
-          "completed",
-          "not-planned",
-          "already-exists"
-        ];
-    
-        requestAnimationFrame(() => {
+    // Reorder status tags first in the topic list
+    requestAnimationFrame(() => {
           document.querySelectorAll("tr.topic-list-item").forEach(row => {
             const tagRow = row.querySelector(".discourse-tags");
             if (!tagRow) return;
@@ -708,7 +684,7 @@ export default apiInitializer("0.11.1", (api) => {
             tagRow.innerHTML = "";
         
             // Append tags with correct spacing
-            sortedTagNames.forEach((tagName, index) => {
+            sortedTagNames.forEach((tagName) => {
               const el = tagMap.get(tagName);
               if (el) tagRow.appendChild(el);
             });
@@ -838,7 +814,7 @@ export default apiInitializer("0.11.1", (api) => {
     }
   }
   // Listen for OS-level preference changes
-  function handlePrefersChange(e) {
+  function handlePrefersChange() {
     updateChart();
   }
   if (darkMediaQuery.addEventListener) {
@@ -887,7 +863,7 @@ export default apiInitializer("0.11.1", (api) => {
 
   // Fallback: periodically update chart to catch theme changes not detected by observers
   // Reduced interval to 1 second for faster response
-  const chartUpdateInterval = setInterval(() => {
+  setInterval(() => {
     if (window.ideasStatusChart) {
       window.ideasStatusChart.update();
     }
