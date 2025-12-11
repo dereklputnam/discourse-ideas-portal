@@ -204,7 +204,7 @@ export default apiInitializer("0.11.1", (api) => {
     if (filterTag && statusCounts[filterTag] !== undefined) {
       count = statusCounts[filterTag];
       const statusName = tagMap[filterTag];
-      title = `${count} ${statusName} ${count === 1 ? 'Idea' : 'Ideas'}`;
+      title = `${count} ${count === 1 ? 'Idea' : 'Ideas'} (${statusName})`;
 
       // Update the title element
       if (titleElement) {
@@ -306,7 +306,7 @@ export default apiInitializer("0.11.1", (api) => {
       if (filterTag && statusCounts[filterTag] !== undefined) {
         const count = statusCounts[filterTag];
         const statusName = tagMap[filterTag];
-        chartTitle = `${count} ${statusName} ${count === 1 ? 'Idea' : 'Ideas'}`;
+        chartTitle = `${count} ${count === 1 ? 'Idea' : 'Ideas'} (${statusName})`;
       } else {
         chartTitle = `${total} ${total === 1 ? 'Idea' : 'Ideas'}`;
       }
