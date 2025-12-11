@@ -482,6 +482,49 @@ export default apiInitializer("0.11.1", (api) => {
       });
     }
 
+    // Custom plugin to show tooltip-like text on the bars themselves
+    const barTooltipPlugin = {
+      id: 'barTooltip',
+      afterDatasetsDraw(chart) {
+        const { ctx, tooltip } = chart;
+
+        if (tooltip && tooltip.opacity > 0 && tooltip.dataPoints && tooltip.dataPoints.length > 0) {
+          const dataPoint = tooltip.dataPoints[0];
+          const { dataIndex } = dataPoint;
+          const statusKey = Object.keys(tagMap)[dataIndex];
+          const statusName = tagMap[statusKey];
+          const count = dataPoint.raw;
+          const percent = Math.round((count / data.reduce((a, b) => a + b, 0)) * 100);
+
+          const meta = chart.getDatasetMeta(0);
+          const bar = meta.data[dataIndex];
+
+          // Draw text on the bar
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'white';
+          ctx.font = 'bold 14px sans-serif';
+
+          const text = `${count} ideas (${percent}%)`;
+          const x = bar.x;
+          const y = bar.y;
+
+          // Add a semi-transparent background
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+          const textWidth = ctx.measureText(text).width;
+          const padding = 8;
+          ctx.fillRect(x - textWidth/2 - padding, y - 12, textWidth + padding * 2, 24);
+
+          // Draw the text
+          ctx.fillStyle = 'white';
+          ctx.fillText(text, x, y);
+
+          ctx.restore();
+        }
+      }
+    };
+
     window.ideasStatusChart = new Chart(ctx, {
       type: 'bar',
       data: {
@@ -495,9 +538,21 @@ export default apiInitializer("0.11.1", (api) => {
           borderSkipped: false,
         }]
       },
+      plugins: [barTooltipPlugin],
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        onHover: (event, activeElements) => {
+          // Trigger tooltip on hover
+          const chart = window.ideasStatusChart;
+          if (activeElements.length > 0) {
+            chart.tooltip.setActiveElements(activeElements, { x: event.x, y: event.y });
+            chart.update();
+          } else {
+            chart.tooltip.setActiveElements([], { x: 0, y: 0 });
+            chart.update();
+          }
+        },
         onClick: (event, elements) => {
           if (elements.length > 0) {
             const index = elements[0].index;
@@ -526,21 +581,7 @@ export default apiInitializer("0.11.1", (api) => {
             display: false
           },
           tooltip: {
-            backgroundColor: 'rgba(0,0,0,0.8)',
-            titleFont: { size: 13 },
-            bodyFont: { size: 12 },
-            callbacks: {
-              title: (context) => {
-                // Get the status key from the original tagMap order
-                const statusKey = Object.keys(tagMap)[context[0].dataIndex];
-                return tagMap[statusKey];
-              },
-              label: (context) => {
-                const count = context.raw;
-                const percent = Math.round((count / data.reduce((a, b) => a + b, 0)) * 100);
-                return `${count} ideas (${percent}%)`;
-              }
-            }
+            enabled: false  // Disable default tooltip
           }
         },
         scales: {
