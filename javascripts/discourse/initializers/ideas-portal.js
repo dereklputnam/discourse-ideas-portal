@@ -549,8 +549,8 @@ export default apiInitializer("0.11.1", (api) => {
           const maxTextWidth = Math.max(maxStatusTextWidth, countTextWidth, percentTextWidth);
 
           // Check if text needs to be displayed outside the bar
-          const MIN_FONT_SIZE = 12; // Don't scale below this (increased for better readability)
-          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 60; // Minimum bar width to attempt inside text (increased)
+          const MIN_FONT_SIZE = 13; // Don't scale below this (increased for better readability)
+          const MIN_BAR_WIDTH_FOR_INSIDE_TEXT = 80; // Minimum bar width to attempt inside text (significantly increased)
           let renderTextOutside = false;
 
           // Debug logging
