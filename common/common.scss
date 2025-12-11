@@ -33,7 +33,7 @@
   align-items: center;
 }
 
-/* Help button styling */
+/* SAVED: Help button styling (previous implementation with question mark icon and tooltip)
 .ideas-portal-category .ideas-help-button {
   display: inline-flex;
   align-items: center;
@@ -57,7 +57,6 @@
   transform: scale(1.1);
 }
 
-/* Tooltip styling for help button - positioned below to stay in container */
 .ideas-portal-category .ideas-help-button::after {
   content: attr(data-tooltip);
   position: absolute;
@@ -81,7 +80,6 @@
   opacity: 1;
 }
 
-/* Tooltip arrow - pointing up */
 .ideas-portal-category .ideas-help-button::before {
   content: '';
   position: absolute;
@@ -98,6 +96,16 @@
 
 .ideas-portal-category .ideas-help-button:hover::before {
   opacity: 1;
+}
+END SAVED */
+
+/* Inline help text styling - replaces help button */
+.ideas-portal-category .ideas-help-text {
+  font-size: 0.875rem;
+  color: var(--primary-medium);
+  font-weight: normal;
+  font-style: italic;
+  margin-left: 8px;
 }
 
 /* Small Show All button styling - matching Discourse primary button treatment */

@@ -241,15 +241,13 @@ export default apiInitializer("0.11.1", (api) => {
         titleElement.textContent = title;
       }
 
-      // Update action area to show help button
+      // Update action area to show help text
       if (actionArea) {
         actionArea.innerHTML = '';
-        const helpButton = document.createElement('button');
-        helpButton.className = 'ideas-help-button';
-        helpButton.textContent = '?';
-        helpButton.setAttribute('data-tooltip', 'Click a status to filter on it');
-        helpButton.type = 'button';
-        actionArea.appendChild(helpButton);
+        const helpText = document.createElement('span');
+        helpText.className = 'ideas-help-text';
+        helpText.textContent = 'Click bars to filter';
+        actionArea.appendChild(helpText);
       }
 
       // Reset all bars to full opacity
@@ -332,12 +330,10 @@ export default apiInitializer("0.11.1", (api) => {
 
       actionArea.appendChild(showAllButton);
     } else {
-      const helpButton = document.createElement('button');
-      helpButton.className = 'ideas-help-button';
-      helpButton.textContent = '?';
-      helpButton.setAttribute('data-tooltip', 'Click a status to filter on it');
-      helpButton.type = 'button';
-      actionArea.appendChild(helpButton);
+      const helpText = document.createElement('span');
+      helpText.className = 'ideas-help-text';
+      helpText.textContent = 'Click bars to filter';
+      actionArea.appendChild(helpText);
     }
 
     titleContainer.appendChild(actionArea);
