@@ -538,9 +538,11 @@ export default apiInitializer("0.11.1", (api) => {
             caretPadding: 8,  // Distance from tooltip to element
             callbacks: {
               title: (context) => {
+                // Get the original label from the chart data
+                const dataIndex = context[0].dataIndex;
+                const originalLabel = context[0].chart.data.labels[dataIndex];
                 // Convert array labels back to string with spaces
-                const label = context[0].label;
-                return Array.isArray(label) ? label.join(' ') : label;
+                return Array.isArray(originalLabel) ? originalLabel.join(' ') : originalLabel;
               },
               label: (context) => {
                 const count = context.raw;
