@@ -474,9 +474,9 @@ body.ideas-voting-category .list-container {
           color: var(--tertiary);
         }
 
-        // Unvoted state (grey)
+        // Unvoted state (grey) - matches the grey in dark mode
         &.can-vote .svg-icon {
-          color: var(--primary-medium);
+          color: var(--primary-low-mid);
         }
 
         &.disabled {
