@@ -469,13 +469,19 @@ body.ideas-voting-category .list-container {
         background: transparent;
         border: none;
 
+        // Default: voted state (colored)
+        .svg-icon {
+          color: var(--tertiary);
+        }
+
+        // Unvoted state (grey)
+        &.can-vote .svg-icon {
+          color: var(--primary-medium);
+        }
+
         &.disabled {
           cursor: default;
           opacity: 0.5;
-        }
-
-        &.can-vote .svg-icon {
-          color: var(--tertiary);
         }
 
         &:not(.disabled):hover .svg-icon {
