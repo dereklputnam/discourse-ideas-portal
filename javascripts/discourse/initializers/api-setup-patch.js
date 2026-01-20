@@ -1,6 +1,6 @@
 import { apiInitializer } from "discourse/lib/api";
 
-export default apiInitializer("0.1", (api) => {
+export default apiInitializer("1.14.0", (api) => {
   // Track if we've applied our safety patch
   window.discourseIdeasPortalSafetyPatches = window.discourseIdeasPortalSafetyPatches || {
     apiSetupPatchApplied: false,
@@ -69,7 +69,7 @@ export default apiInitializer("0.1", (api) => {
   };
 
   window.discourseIdeasPortalSafetyPatches.apiSetupPatchApplied = true;
-  console.log("Ideas Portal: Successfully wrapped decorateCookedElement API with safety checks (version 0.1 - very early)");
+  console.log("Ideas Portal: Successfully wrapped decorateCookedElement API with safety checks");
 
   // Expose statistics
   window.viewIdeasPortalStats = function() {
