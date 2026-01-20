@@ -1,9 +1,11 @@
 import { apiInitializer } from "discourse/lib/api";
 
-export default apiInitializer("0.8", (api) => {
+export default apiInitializer("0.1", (api) => {
   // Track if we've applied our safety patch
   window.discourseIdeasPortalSafetyPatches = window.discourseIdeasPortalSafetyPatches || {
     apiSetupPatchApplied: false,
+    decorationCount: 0,
+    skippedCount: 0,
     errors: []
   };
 
@@ -16,6 +18,8 @@ export default apiInitializer("0.8", (api) => {
   const originalDecorateCookedElement = api.decorateCookedElement;
 
   api.decorateCookedElement = function(callback, opts) {
+    window.discourseIdeasPortalSafetyPatches.decorationCount++;
+
     // Wrap the callback with error handling
     const safeCallback = function(elem, helper) {
       try {
@@ -26,21 +30,28 @@ export default apiInitializer("0.8", (api) => {
             const model = helper.getModel();
             // If model is undefined or doesn't have an id, skip this decoration
             if (!model || typeof model.id === 'undefined') {
-              console.debug('Ideas Portal: Skipped decoration callback due to undefined model or model.id');
+              window.discourseIdeasPortalSafetyPatches.skippedCount++;
+              console.debug(`Ideas Portal: Skipped decoration callback due to undefined model or model.id (callback: ${opts?.id || 'unknown'})`);
               return;
             }
           } catch (modelError) {
             // If getModel() throws an error, skip this decoration
-            console.debug('Ideas Portal: getModel() threw an error, skipping decoration:', modelError);
+            window.discourseIdeasPortalSafetyPatches.skippedCount++;
+            console.debug(`Ideas Portal: getModel() threw an error, skipping decoration (callback: ${opts?.id || 'unknown'}):`, modelError);
             return;
           }
+        } else if (!helper) {
+          // Helper is completely undefined
+          window.discourseIdeasPortalSafetyPatches.skippedCount++;
+          console.debug(`Ideas Portal: Helper is undefined, skipping decoration (callback: ${opts?.id || 'unknown'})`);
+          return;
         }
 
         // Call the original callback
         return callback.call(this, elem, helper);
       } catch (e) {
         // Log but don't propagate the error
-        console.debug('Ideas Portal: Caught error in decorateCookedElement callback:', e);
+        console.debug(`Ideas Portal: Caught error in decorateCookedElement callback (${opts?.id || 'unknown'}):`, e);
         window.discourseIdeasPortalSafetyPatches.errors.push({
           timestamp: new Date().toISOString(),
           source: 'decorateCookedElement callback wrapper',
@@ -48,6 +59,8 @@ export default apiInitializer("0.8", (api) => {
           stack: e.stack,
           callbackId: opts?.id || 'unknown'
         });
+        // Return undefined to prevent further issues
+        return undefined;
       }
     };
 
@@ -56,50 +69,21 @@ export default apiInitializer("0.8", (api) => {
   };
 
   window.discourseIdeasPortalSafetyPatches.apiSetupPatchApplied = true;
-  console.log("Ideas Portal: Successfully wrapped decorateCookedElement API with safety checks");
+  console.log("Ideas Portal: Successfully wrapped decorateCookedElement API with safety checks (version 0.1 - very early)");
 
-  // Try to also patch the internal service if available
-  try {
-    const pluginApiInstance = api.container.lookup("service:plugin-api");
-    if (pluginApiInstance?.decorateCookedPlugin?._decorateCookedElement) {
-      const originalInternal = pluginApiInstance.decorateCookedPlugin._decorateCookedElement;
-
-      pluginApiInstance.decorateCookedPlugin._decorateCookedElement = function(post, helper) {
-        try {
-          if (!helper || typeof helper.getModel !== 'function') {
-            return;
-          }
-
-          let model;
-          try {
-            model = helper.getModel();
-          } catch (modelError) {
-            console.debug('Ideas Portal: Internal getModel() threw error, skipping:', modelError);
-            return;
-          }
-
-          if (!model || typeof model.id === 'undefined') {
-            console.debug('Ideas Portal: Skipped internal decoration due to undefined model.id');
-            return;
-          }
-
-          return originalInternal.apply(this, arguments);
-        } catch (e) {
-          console.debug('Ideas Portal: Caught error in internal _decorateCookedElement:', e);
-          window.discourseIdeasPortalSafetyPatches.errors.push({
-            timestamp: new Date().toISOString(),
-            source: 'internal _decorateCookedElement',
-            error: e.toString(),
-            stack: e.stack
-          });
-        }
-      };
-
-      console.log("Ideas Portal: Successfully patched internal _decorateCookedElement");
+  // Expose statistics
+  window.viewIdeasPortalStats = function() {
+    const stats = {
+      totalDecorations: window.discourseIdeasPortalSafetyPatches.decorationCount,
+      skippedDecorations: window.discourseIdeasPortalSafetyPatches.skippedCount,
+      errors: window.discourseIdeasPortalSafetyPatches.errors.length
+    };
+    console.table([stats]);
+    if (window.discourseIdeasPortalSafetyPatches.errors.length > 0) {
+      console.log("Errors:", window.discourseIdeasPortalSafetyPatches.errors);
     }
-  } catch (e) {
-    console.debug("Ideas Portal: Could not patch internal service (may not be available yet):", e);
-  }
+    return stats;
+  };
 
   // Expose a way to view any errors caught by our patch
   window.viewIdeasPortalPatchErrors = function() {
