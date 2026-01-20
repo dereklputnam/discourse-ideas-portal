@@ -31,19 +31,26 @@ export default apiInitializer("1.14.0", (api) => {
             // If model is undefined or doesn't have an id, skip this decoration
             if (!model || typeof model.id === 'undefined') {
               window.discourseIdeasPortalSafetyPatches.skippedCount++;
-              console.debug(`Ideas Portal: Skipped decoration callback due to undefined model or model.id (callback: ${opts?.id || 'unknown'})`);
+              // Only log if verbose mode is enabled
+              if (window.ideasPortalVerboseErrors) {
+                console.debug(`Ideas Portal: Skipped decoration callback due to undefined model or model.id (callback: ${opts?.id || 'unknown'})`);
+              }
               return;
             }
           } catch (modelError) {
             // If getModel() throws an error, skip this decoration
             window.discourseIdeasPortalSafetyPatches.skippedCount++;
-            console.debug(`Ideas Portal: getModel() threw an error, skipping decoration (callback: ${opts?.id || 'unknown'}):`, modelError);
+            if (window.ideasPortalVerboseErrors) {
+              console.debug(`Ideas Portal: getModel() threw an error, skipping decoration (callback: ${opts?.id || 'unknown'}):`, modelError);
+            }
             return;
           }
         } else if (!helper) {
           // Helper is completely undefined
           window.discourseIdeasPortalSafetyPatches.skippedCount++;
-          console.debug(`Ideas Portal: Helper is undefined, skipping decoration (callback: ${opts?.id || 'unknown'})`);
+          if (window.ideasPortalVerboseErrors) {
+            console.debug(`Ideas Portal: Helper is undefined, skipping decoration (callback: ${opts?.id || 'unknown'})`);
+          }
           return;
         }
 
@@ -51,7 +58,9 @@ export default apiInitializer("1.14.0", (api) => {
         return callback.call(this, elem, helper);
       } catch (e) {
         // Log but don't propagate the error
-        console.debug(`Ideas Portal: Caught error in decorateCookedElement callback (${opts?.id || 'unknown'}):`, e);
+        if (window.ideasPortalVerboseErrors) {
+          console.debug(`Ideas Portal: Caught error in decorateCookedElement callback (${opts?.id || 'unknown'}):`, e);
+        }
         window.discourseIdeasPortalSafetyPatches.errors.push({
           timestamp: new Date().toISOString(),
           source: 'decorateCookedElement callback wrapper',
@@ -82,6 +91,7 @@ export default apiInitializer("1.14.0", (api) => {
     if (window.discourseIdeasPortalSafetyPatches.errors.length > 0) {
       console.log("Errors:", window.discourseIdeasPortalSafetyPatches.errors);
     }
+    console.log("Set window.ideasPortalVerboseErrors = true to see detailed logs");
     return stats;
   };
 
