@@ -2,10 +2,11 @@ import { apiInitializer } from "discourse/lib/api";
 
 // Use version 0.8 to load very early in the initialization process
 export default apiInitializer("0.8", (api) => {
-  // Create a debug log for window errors
+  // Create a debug log for window errors (but don't log every interception to console)
   const windowErrorLog = [];
   window.viewWindowErrorLog = function() {
     console.table(windowErrorLog);
+    return windowErrorLog;
   };
 
   // Add a global window error handler that specifically targets the error we're seeing
@@ -29,13 +30,15 @@ export default apiInitializer("0.8", (api) => {
       if (event.error.toString &&
           event.error.toString().includes("Cannot read properties of undefined (reading 'id')")) {
 
-        // Log detail for debugging
-        console.debug('Intercepted window error:', {
-          error: event.error,
-          stack: event.error.stack,
-          url: window.location.href,
-          source: 'window error handler'
-        });
+        // Silently suppress - only log if verbose mode is enabled
+        if (window.ideasPortalVerboseErrors) {
+          console.debug('Ideas Portal: Suppressed window error:', {
+            error: event.error,
+            stack: event.error.stack,
+            url: window.location.href,
+            source: 'window error handler'
+          });
+        }
 
         errorInfo.suppressed = true;
 
@@ -64,13 +67,15 @@ export default apiInitializer("0.8", (api) => {
       if (event.reason.toString &&
           event.reason.toString().includes("Cannot read properties of undefined (reading 'id')")) {
 
-        // Log detail for debugging
-        console.debug('Intercepted promise rejection:', {
-          reason: event.reason,
-          stack: event.reason.stack,
-          url: window.location.href,
-          source: 'unhandledrejection handler'
-        });
+        // Silently suppress - only log if verbose mode is enabled
+        if (window.ideasPortalVerboseErrors) {
+          console.debug('Ideas Portal: Suppressed promise rejection:', {
+            reason: event.reason,
+            stack: event.reason.stack,
+            url: window.location.href,
+            source: 'unhandledrejection handler'
+          });
+        }
 
         rejectionInfo.suppressed = true;
 
@@ -85,5 +90,18 @@ export default apiInitializer("0.8", (api) => {
   window.addEventListener("error", errorHandler, true);
   window.addEventListener("unhandledrejection", rejectionHandler, true);
 
-  console.log("Window error tracking initialized. Type 'window.viewWindowErrorLog()' in console to see window error details.");
+  // Provide helper function to view error stats
+  window.ideasPortalErrorStats = function() {
+    const stats = {
+      totalErrors: windowErrorLog.length,
+      suppressed: windowErrorLog.filter(e => e.suppressed).length,
+      notSuppressed: windowErrorLog.filter(e => !e.suppressed).length
+    };
+    console.table([stats]);
+    console.log("Run window.viewWindowErrorLog() to see all errors");
+    console.log("Set window.ideasPortalVerboseErrors = true to see suppressed errors in console");
+    return stats;
+  };
+
+  console.log("Ideas Portal: Error handler initialized. Run window.ideasPortalErrorStats() for details.");
 });
