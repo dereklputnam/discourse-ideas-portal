@@ -103,5 +103,8 @@ export default apiInitializer("0.8", (api) => {
     return stats;
   };
 
-  console.log("Ideas Portal: Error handler initialized. Run window.ideasPortalErrorStats() for details.");
+  // Silent initialization - only log if there are immediate errors or verbose mode
+  if (window.ideasPortalVerboseErrors) {
+    console.log("Ideas Portal: Error handler initialized. Run window.ideasPortalErrorStats() for details.");
+  }
 });

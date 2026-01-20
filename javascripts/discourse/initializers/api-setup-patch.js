@@ -57,10 +57,8 @@ export default apiInitializer("1.14.0", (api) => {
         // Call the original callback
         return callback.call(this, elem, helper);
       } catch (e) {
-        // Log but don't propagate the error
-        if (window.ideasPortalVerboseErrors) {
-          console.debug(`Ideas Portal: Caught error in decorateCookedElement callback (${opts?.id || 'unknown'}):`, e);
-        }
+        // Log error to console always since this is unexpected
+        console.error(`Ideas Portal: Caught unexpected error in decorateCookedElement callback (${opts?.id || 'unknown'}):`, e);
         window.discourseIdeasPortalSafetyPatches.errors.push({
           timestamp: new Date().toISOString(),
           source: 'decorateCookedElement callback wrapper',
@@ -78,7 +76,11 @@ export default apiInitializer("1.14.0", (api) => {
   };
 
   window.discourseIdeasPortalSafetyPatches.apiSetupPatchApplied = true;
-  console.log("Ideas Portal: Successfully wrapped decorateCookedElement API with safety checks");
+
+  // Silent initialization - only log if verbose mode is enabled
+  if (window.ideasPortalVerboseErrors) {
+    console.log("Ideas Portal: Successfully wrapped decorateCookedElement API with safety checks");
+  }
 
   // Expose statistics
   window.viewIdeasPortalStats = function() {
