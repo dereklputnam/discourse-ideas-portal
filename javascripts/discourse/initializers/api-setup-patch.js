@@ -19,11 +19,19 @@ export default apiInitializer("0.8", (api) => {
     // Wrap the callback with error handling
     const safeCallback = function(elem, helper) {
       try {
-        // Add safety check for helper.getModel()
-        if (helper && helper.getModel) {
-          const model = helper.getModel();
-          if (!model || typeof model.id === 'undefined') {
-            console.debug('Ideas Portal: Skipped decoration callback due to undefined model.id');
+        // Add safety check for helper and helper.getModel()
+        // This check runs BEFORE the callback is executed
+        if (helper && typeof helper.getModel === 'function') {
+          try {
+            const model = helper.getModel();
+            // If model is undefined or doesn't have an id, skip this decoration
+            if (!model || typeof model.id === 'undefined') {
+              console.debug('Ideas Portal: Skipped decoration callback due to undefined model or model.id');
+              return;
+            }
+          } catch (modelError) {
+            // If getModel() throws an error, skip this decoration
+            console.debug('Ideas Portal: getModel() threw an error, skipping decoration:', modelError);
             return;
           }
         }
@@ -58,11 +66,18 @@ export default apiInitializer("0.8", (api) => {
 
       pluginApiInstance.decorateCookedPlugin._decorateCookedElement = function(post, helper) {
         try {
-          if (!helper || !helper.getModel) {
+          if (!helper || typeof helper.getModel !== 'function') {
             return;
           }
 
-          const model = helper.getModel();
+          let model;
+          try {
+            model = helper.getModel();
+          } catch (modelError) {
+            console.debug('Ideas Portal: Internal getModel() threw error, skipping:', modelError);
+            return;
+          }
+
           if (!model || typeof model.id === 'undefined') {
             console.debug('Ideas Portal: Skipped internal decoration due to undefined model.id');
             return;
