@@ -62,7 +62,8 @@ export default apiInitializer("0.11.1", (api) => {
     let done = false;
 
     while (!done) {
-      const response = await fetch(`/c/${categoryId}.json?page=${page}`);
+      const basePath = Discourse.BaseUri || '';
+      const response = await fetch(`${basePath}/c/${categoryId}.json?page=${page}`);
       if (!response.ok) break;
 
       const data = await response.json();
@@ -85,23 +86,24 @@ export default apiInitializer("0.11.1", (api) => {
     let page = 0;
     let allTopics = [];
     let done = false;
-  
+
     while (!done && page < 100) {
-      const response = await fetch(`/tag/${tagName}.json?page=${page}`);
+      const basePath = Discourse.BaseUri || '';
+      const response = await fetch(`${basePath}/tag/${tagName}.json?page=${page}`);
       if (!response.ok) break;
-  
+
       const data = await response.json();
       const topics = data?.topic_list?.topics || [];
-  
+
       allTopics = allTopics.concat(topics);
-  
+
       if (topics.length < pageSize) {
         done = true;
       } else {
         page++;
       }
     }
-  
+
     return allTopics;
   };
   
@@ -113,8 +115,10 @@ export default apiInitializer("0.11.1", (api) => {
     topics.forEach(topic => {
       const tags = topic.tags || [];
       tags.forEach(tag => {
-        if (counts.hasOwnProperty(tag)) {
-          counts[tag]++;
+        // Handle both string tags and tag objects with slug/name properties
+        const tagName = typeof tag === 'string' ? tag : (tag.slug || tag.name);
+        if (tagName && counts.hasOwnProperty(tagName)) {
+          counts[tagName]++;
         }
       });
     });
