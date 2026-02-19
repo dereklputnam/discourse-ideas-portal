@@ -172,14 +172,19 @@ export default apiInitializer("0.11.1", (api) => {
     Object.keys(tagMap).forEach(status => {
       // Split multi-word labels into multiple lines for better display
       const labelText = tagMap[status];
-      const words = labelText.split(' ');
       let label;
 
-      // If label has multiple words, split into array for multi-line display
-      if (words.length > 1) {
-        label = words;  // Chart.js will render array as multi-line
+      // Special handling for "Planned Long Term" to keep "Long Term" together
+      if (labelText === 'Planned Long Term') {
+        label = ['Planned', 'Long Term'];
       } else {
-        label = labelText;
+        const words = labelText.split(' ');
+        // If label has multiple words, split into array for multi-line display
+        if (words.length > 1) {
+          label = words;  // Chart.js will render array as multi-line
+        } else {
+          label = labelText;
+        }
       }
 
       labels.push(label);  // Add label for every status
