@@ -12,7 +12,7 @@ export default apiInitializer("0.11.1", (api) => {
     'new': 'New',
     'under-review': 'Under Review',
     'planned': 'Planned',
-    'planned-long-term': 'Planned Long-term',
+    'planned-long-term': 'Planned Long Term',
     'in-progress': 'In Progress',
     'completed': 'Completed',
     'not-planned': 'Not Planned',
