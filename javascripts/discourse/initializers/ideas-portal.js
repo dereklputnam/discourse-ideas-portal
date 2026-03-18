@@ -56,38 +56,33 @@ export default apiInitializer("0.11.1", (api) => {
 
   
   const fetchAllTopicsInCategory = async (categoryId) => {
-    const pageSize = 100;
     let page = 0;
     let allTopics = [];
-    let done = false;
+    let hasMore = true;
 
-    while (!done) {
+    while (hasMore && page < 100) {
       const basePath = Discourse.BaseUri || '';
       const response = await fetch(`${basePath}/c/${categoryId}.json?page=${page}`);
       if (!response.ok) break;
 
       const data = await response.json();
-      const topics = data.topic_list.topics || [];
+      const topics = data.topic_list?.topics || [];
 
       allTopics = allTopics.concat(topics);
-      if (topics.length < pageSize) {
-        done = true;
-      } else {
-        page++;
-      }
+      hasMore = !!data.topic_list?.more_topics_url;
+      page++;
     }
 
     return allTopics;
   };
-  
-  
+
+
   const fetchAllTopicsForTag = async (tagName) => {
-    const pageSize = 30;
     let page = 0;
     let allTopics = [];
-    let done = false;
+    let hasMore = true;
 
-    while (!done && page < 100) {
+    while (hasMore && page < 100) {
       const basePath = Discourse.BaseUri || '';
       const response = await fetch(`${basePath}/tag/${tagName}.json?page=${page}`);
       if (!response.ok) break;
@@ -96,12 +91,8 @@ export default apiInitializer("0.11.1", (api) => {
       const topics = data?.topic_list?.topics || [];
 
       allTopics = allTopics.concat(topics);
-
-      if (topics.length < pageSize) {
-        done = true;
-      } else {
-        page++;
-      }
+      hasMore = !!data.topic_list?.more_topics_url;
+      page++;
     }
 
     return allTopics;
