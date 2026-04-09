@@ -708,7 +708,7 @@ export default apiInitializer("0.11.1", (api) => {
         const originalTitle = bannerTitle.textContent.trim();
         let parentName = "";
         if (currentCategory.parent_category_id) {
-          const siteCategories = api.container.lookup("site:main").categories;
+          const siteCategories = api.container.lookup("service:site").categories;
           const parentCategory = siteCategories.find(cat => cat.id === currentCategory.parent_category_id);
           if (parentCategory) parentName = parentCategory.name;
         }
@@ -731,7 +731,7 @@ export default apiInitializer("0.11.1", (api) => {
       const categorySlug = currentCategory.slug;
       let parentSlug = "";
       if (currentCategory.parent_category_id) {
-        const siteCategories = api.container.lookup("site:main").categories;
+        const siteCategories = api.container.lookup("service:site").categories;
         const parentCategory = siteCategories.find(cat => cat.id === currentCategory.parent_category_id);
         if (parentCategory) parentSlug = `${parentCategory.slug}/`;
       }
